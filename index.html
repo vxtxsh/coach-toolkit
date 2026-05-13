@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QEA Coach Toolkit — HR Training Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#e8f4f8;--surface:#ffffff;--surface2:#d6ecf5;--border:#ADD8E6;--accent:#1a6fa8;--accent3:#f59e0b;--accent4:#0e86c7;--text:#0d2d3f;--muted:#4a7a92;--green:#15803d;--orange:#c2410c;--red:#b91c1c;--blue:#1565c0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Calibri',Calibri,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent4));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-text{font-family:'Calibri',Calibri,sans-serif;font-weight:800;font-size:17px;}
+.logo-sub{font-size:10px;color:var(--muted);}
+.header-right{display:flex;align-items:center;gap:10px;}
+.date-badge{font-size:12px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:18px;}
+.upload-btn{background:linear-gradient(135deg,var(--accent),var(--accent4));color:#fff;border:none;padding:9px 18px;border-radius:8px;font-family:'Calibri',Calibri,sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 2px 8px rgba(26,111,168,.25);}
+.upload-btn:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(26,111,168,.4);}
+.nav-tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:2px;overflow-x:auto;}
+.nav-tab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.main{padding:24px 28px;max-width:1700px;margin:0 auto;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
+.section-title{font-family:'Calibri',Calibri,sans-serif;font-weight:700;font-size:21px;}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filter-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-family:'Calibri',Calibri,sans-serif;font-size:13px;cursor:pointer;min-width:125px;}
+.filter-select:focus{outline:none;border-color:var(--accent);}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:24px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:18px;position:relative;overflow:hidden;cursor:pointer;transition:transform .18s,box-shadow .18s;}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,0,0,.5);}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-card.teal::before{background:var(--accent);}
+.kpi-card.purple::before{background:var(--accent4);}
+.kpi-card.orange::before{background:var(--orange);}
+.kpi-card.green::before{background:var(--green);}
+.kpi-card.red::before{background:var(--red);}
+.kpi-card.yellow::before{background:var(--accent3);}
+.kpi-icon{font-size:24px;margin-bottom:8px;}
+.kpi-val{font-family:'Calibri',Calibri,sans-serif;font-size:28px;font-weight:800;line-height:1;}
+.kpi-label{font-size:11px;color:var(--muted);margin-top:5px;font-weight:500;}
+.kpi-hint{font-size:9px;color:var(--accent);margin-top:3px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:20px;}
+@media(max-width:860px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:20px;}
+.card-title{font-family:'Calibri',Calibri,sans-serif;font-weight:700;font-size:13px;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:18px;font-size:10px;font-weight:600;}
+.badge.green{background:#3fb95020;color:var(--green);}
+.badge.orange{background:#f0883e20;color:var(--orange);}
+.badge.blue{background:#58a6ff20;color:var(--blue);}
+.badge.red{background:#ff6b6b20;color:var(--red);}
+.badge.purple{background:#6c63ff20;color:var(--accent4);}
+.badge.teal{background:#00d4aa20;color:var(--accent);}
+.milestone-banner{background:linear-gradient(135deg,#d6ecf5,#e8f4f8);border:1px solid var(--border);border-radius:13px;padding:20px;margin-bottom:20px;}
+.milestone-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.milestone-header h3{font-family:'Calibri',Calibri,sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:7px;}
+.milestone-items{display:flex;flex-direction:column;gap:7px;max-height:300px;overflow-y:auto;}
+.milestone-item{display:flex;align-items:center;gap:11px;padding:9px 13px;border-radius:9px;border:1px solid transparent;transition:all .2s;}
+.milestone-item.completed{background:#3fb95010;border-color:#3fb95030;}
+.milestone-item.current{background:#ffd16615;border-color:#ffd16640;animation:pulse-border 1.5s infinite;}
+.milestone-item.upcoming{background:#58a6ff10;border-color:#58a6ff25;}
+.milestone-item.overdue{background:#ff6b6b10;border-color:#ff6b6b30;}
+@keyframes pulse-border{0%,100%{border-color:#ffd16640;box-shadow:0 0 0 0 #ffd16630;}50%{border-color:#ffd166;box-shadow:0 0 0 4px #ffd16610;}}
+.milestone-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.milestone-dot.completed{background:var(--green);}
+.milestone-dot.current{background:var(--accent3);animation:blink 1s infinite;}
+.milestone-dot.upcoming{background:var(--blue);}
+.milestone-dot.overdue{background:var(--red);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
+.milestone-info{flex:1;min-width:0;}
+.milestone-batch{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.milestone-type{font-size:10px;color:var(--muted);}
+.legend-row{display:flex;gap:14px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
+.legend-dot{width:7px;height:7px;border-radius:50%;}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:9px 12px;font-size:10px;font-weight:600;color:var(--muted);border-bottom:1px solid var(--border);background:#c2e4f0;white-space:nowrap;position:sticky;top:0;z-index:2;}
+td{padding:8px 12px;border-bottom:1px solid #c8e8f5;vertical-align:middle;}
+tr:hover td{background:#e8f6fc;}
+tr:last-child td{border-bottom:none;}
+.cohort-code{font-family:monospace;font-size:11px;color:#0d4f72;background:#ADD8E630;padding:2px 6px;border-radius:4px;border:1px solid #ADD8E6;}
+.progress-bar{height:4px;background:#ADD8E6;border-radius:2px;overflow:hidden;width:60px;}
+.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent4));}
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
+.bar-row{display:flex;align-items:center;gap:9px;}
+.bar-label{width:160px;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;}
+.bar-track{flex:1;height:16px;background:#ADD8E6;border-radius:3px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:600;color:#fff;white-space:nowrap;min-width:18px;}
+.bar-count{width:28px;text-align:right;font-size:11px;color:var(--muted);}
+.modal-overlay{position:fixed;inset:0;background:#00000040;z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:15px;padding:28px;width:480px;max-width:92vw;}
+.modal h2{font-family:'Calibri',Calibri,sans-serif;font-size:19px;font-weight:800;margin-bottom:7px;}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.6;}
+.drop-zone{border:2px dashed var(--border);border-radius:11px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:#d6ecf5;}
+.drop-zone .dz-icon{font-size:34px;margin-bottom:8px;}
+.drop-zone p{font-size:13px;color:var(--muted);}
+.modal-btns{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
+.btn-cancel{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:7px;cursor:pointer;font-family:'Calibri',Calibri,sans-serif;font-size:13px;}
+.btn-primary{background:var(--accent);color:#000;padding:8px 16px;border-radius:7px;font-weight:600;cursor:pointer;border:none;font-family:'Calibri',Calibri,sans-serif;font-size:13px;}
+.btn-dl{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 14px;border-radius:7px;cursor:pointer;font-family:'Calibri',Calibri,sans-serif;font-size:12px;display:inline-flex;align-items:center;gap:5px;transition:all .2s;}
+.btn-dl:hover{border-color:var(--accent);color:var(--accent);}
+.toast{position:fixed;bottom:22px;right:22px;background:#1a6fa8;color:#fff;padding:10px 18px;border-radius:9px;font-weight:600;font-size:13px;z-index:600;transform:translateY(80px);opacity:0;transition:all .3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.panel{display:none;}
+.panel.active{display:block;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:#e8f4f8;}
+::-webkit-scrollbar-thumb{background:#ADD8E6;border-radius:3px;}
+/* DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:#00000040;z-index:400;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .2s;}
+.drawer-overlay.open{opacity:1;pointer-events:all;}
+.drawer{width:460px;max-width:94vw;height:100vh;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;padding:26px;transform:translateX(100%);transition:transform .28s ease;}
+.drawer-overlay.open .drawer{transform:translateX(0);}
+.drawer-title{font-family:'Calibri',Calibri,sans-serif;font-size:17px;font-weight:800;margin-bottom:5px;}
+.drawer-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
+.drawer-close{position:absolute;top:18px;right:18px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;}
+/* ATT */
+.att-input{background:#fff;border:1px solid var(--border);color:var(--text);text-align:center;width:62px;border-radius:5px;font-size:11px;font-family:'Calibri',Calibri,sans-serif;padding:3px 4px;cursor:pointer;font-weight:600;}
+.att-input:focus{outline:none;border-color:var(--accent);}
+.att-input.P{color:#15803d;border-color:#86efac;background:#f0fdf4;}
+.att-input.AB{color:#b91c1c;border-color:#fca5a5;background:#fff1f2;}
+.att-input.EXAM{color:#92400e;border-color:#fcd34d;background:#fffbeb;}
+.search-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-family:'Calibri',Calibri,sans-serif;font-size:13px;}
+.search-input:focus{outline:none;border-color:var(--accent);}
+.empty-state{text-align:center;padding:44px 20px;color:var(--muted);}
+.empty-state .emo{font-size:40px;margin-bottom:10px;}
+.empty-state p{font-size:13px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">
+      <!-- HR Training SVG Clipart -->
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Person 1 -->
+        <circle cx="8" cy="7" r="3" fill="white" opacity="0.95"/>
+        <path d="M3 18c0-3 2-5 5-5h1c3 0 5 2 5 5" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.95"/>
+        <!-- Person 2 -->
+        <circle cx="18" cy="7" r="3" fill="white" opacity="0.95"/>
+        <path d="M13 18c0-3 2-5 5-5h1c3 0 5 2 5 5" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.95"/>
+        <!-- Clipboard/board -->
+        <rect x="10" y="20" width="6" height="5" rx="1" fill="white" opacity="0.8"/>
+        <line x1="11.5" y1="22" x2="14.5" y2="22" stroke="#1a6fa8" stroke-width="1"/>
+        <line x1="11.5" y1="23.5" x2="14.5" y2="23.5" stroke="#1a6fa8" stroke-width="1"/>
+      </svg>
+    </div>
+    <div>
+      <div class="logo-text">Coach Tool Kit</div>
+      <div class="logo-sub">HR Training Management System</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="date-badge" id="liveClock">📅 Loading...</div>
+    <button class="upload-btn" onclick="openModal('main')">⬆ Upload Excel</button>
+    <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" onchange="handleMainUpload(event)">
+    <input type="file" id="attFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleAttUpload(event)">
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="switchPanel('dashboard',this)">📊 Dashboard</div>
+  <div class="nav-tab" onclick="switchPanel('batches',this)">📋 Batch Overview</div>
+  <div class="nav-tab" onclick="switchPanel('milestones',this)">🎯 Milestones</div>
+  <div class="nav-tab" onclick="switchPanel('attendance',this)">✅ Attendance</div>
+</div>
+
+<div class="main">
+<div class="panel active" id="panel-dashboard">
+  <div class="section-header">
+    <div class="section-title">📊 Training Overview</div>
+    <div class="filter-bar">
+      <button class="btn-dl" onclick="downloadDashboardTemplate()" style="background:#d6ecf5;border-color:#ADD8E6;color:#1a6fa8;font-weight:600;font-size:12px;">⬇ Download Template</button>
+      <select class="filter-select" id="f-type" onchange="applyFilters()"><option value="">All Types</option><option value="Intern">Intern</option><option value="FTE">FTE</option></select>
+      <select class="filter-select" id="f-status" onchange="applyFilters()"><option value="">All Statuses</option><option value="In-Training">In-Training</option><option value="Graduated">Graduated</option><option value="Partially Graduated">Partially Graduated</option><option value="Remedial">Remedial</option></select>
+      <select class="filter-select" id="f-vertical" onchange="applyFilters()"><option value="">All Verticals</option></select>
+      <select class="filter-select" id="f-mode" onchange="applyFilters()"><option value="">All Modes</option><option value="Person">In Person</option><option value="Virtual">Virtual</option></select>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card teal" onclick="showKpiDrawer('total')"><div class="kpi-icon">👥</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-label">Total In-Training</div><div class="kpi-hint">▶ Click for details</div></div>
+    <div class="kpi-card green" onclick="showKpiDrawer('grad')"><div class="kpi-icon">🎓</div><div class="kpi-val" id="kpi-grad">—</div><div class="kpi-label">Graduated</div><div class="kpi-hint">▶ Click for details</div></div>
+    <div class="kpi-card orange" onclick="showKpiDrawer('intr')"><div class="kpi-icon">📚</div><div class="kpi-val" id="kpi-intr">—</div><div class="kpi-label">Active Batches</div><div class="kpi-hint">▶ Click for details</div></div>
+    <div class="kpi-card purple" onclick="showKpiDrawer('rem')"><div class="kpi-icon">⚠️</div><div class="kpi-val" id="kpi-rem">—</div><div class="kpi-label">Remedial</div><div class="kpi-hint">▶ Click for details</div></div>
+    <div class="kpi-card red" onclick="showKpiDrawer('exit')"><div class="kpi-icon">🚪</div><div class="kpi-val" id="kpi-exit">—</div><div class="kpi-label">Exits</div><div class="kpi-hint">▶ Click for details</div></div>
+    <div class="kpi-card yellow" onclick="showKpiDrawer('partial')"><div class="kpi-icon">📊</div><div class="kpi-val" id="kpi-partial">—</div><div class="kpi-label">Partially Graduated</div><div class="kpi-hint">▶ Click for details</div></div>
+    <div class="kpi-card teal" onclick="showKpiDrawer('trainers')"><div class="kpi-icon">👨‍🏫</div><div class="kpi-val" id="kpi-trainers">—</div><div class="kpi-label">Trainers</div><div class="kpi-hint">▶ Click for details</div></div>
+    <div class="kpi-card green" onclick="showKpiDrawer('rooms')"><div class="kpi-icon">🏫</div><div class="kpi-val" id="kpi-rooms">—</div><div class="kpi-label">Training Rooms</div><div class="kpi-hint">▶ Click for details</div></div>
+  </div>
+  <div class="grid-3">
+    <div class="card"><div class="card-title">🥧 Status Distribution</div><div id="status-donut"></div></div>
+    <div class="card"><div class="card-title">🎛️ Intern vs FTE</div><div id="type-donut"></div></div>
+    <div class="card"><div class="card-title">📡 Mode of Training</div><div id="mode-donut"></div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">📊 Headcount by Track</div><div class="bar-chart" id="track-bars"></div></div>
+    <div class="card"><div class="card-title">🏢 Headcount by Vertical</div><div class="bar-chart" id="vertical-bars"></div></div>
+  </div>
+  <div class="milestone-banner">
+    <div class="milestone-header">
+      <h3>🎯 Milestone Alert Board <span style="font-size:10px;color:var(--muted);font-weight:400;margin-left:7px;">Next 30 Days</span></h3>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Done</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent3);animation:blink 1s infinite;"></div>This Week</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Upcoming</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Overdue</div>
+      </div>
+    </div>
+    <div class="milestone-items" id="milestone-board"></div>
+  </div>
+</div>
+
+<!-- BATCH OVERVIEW -->
+<div class="panel" id="panel-batches">
+  <div class="section-header">
+    <div class="section-title">📋 Batch Overview</div>
+    <div class="filter-bar">
+      <select class="filter-select" id="bf-type" onchange="renderBatchTable()"><option value="">All Types</option><option value="Intern">Intern</option><option value="FTE">FTE</option></select>
+      <select class="filter-select" id="bf-status" onchange="renderBatchTable()"><option value="">All Statuses</option><option value="In-Training">In-Training</option><option value="Graduated">Graduated</option><option value="Partially Graduated">Partially Graduated</option><option value="Remedial">Remedial</option></select>
+      <input class="search-input" id="bf-search" type="text" placeholder="🔍 Search cohort / track..." oninput="renderBatchTable()" style="min-width:200px;">
+    </div>
+  </div>
+  <div class="card"><div class="table-wrap" id="batch-table-wrap"><div class="empty-state"><div class="emo">📂</div><p>Upload your Excel file to view batch data</p></div></div></div>
+</div>
+
+<!-- MILESTONES -->
+<div class="panel" id="panel-milestones">
+  <div class="section-header">
+    <div class="section-title">🎯 Milestones & Assessment Dates</div>
+    <div class="filter-bar">
+      <select class="filter-select" id="mf-type" onchange="renderMilestones()"><option value="">All Types</option><option value="qualifier">Qualifier</option><option value="interim">Interim</option><option value="final">Final</option><option value="release">Release</option></select>
+      <select class="filter-select" id="mf-status" onchange="renderMilestones()"><option value="">All Status</option><option value="overdue">Overdue</option><option value="current">This Week</option><option value="upcoming">Upcoming</option><option value="completed">Completed</option></select>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">📅 Calendar Heatmap</div><div id="milestone-calendar"></div></div>
+    <div class="card"><div class="card-title">📋 Milestone Details</div><div id="milestone-detail-list" style="max-height:500px;overflow-y:auto;"></div></div>
+  </div>
+</div>
+
+<!-- ATTENDANCE -->
+<div class="panel" id="panel-attendance">
+  <div class="section-header">
+    <div class="section-title">✅ Attendance Tracker</div>
+    <div class="filter-bar">
+      <button class="btn-dl" onclick="addTodayToAtt()" style="background:#d6ecf5;border-color:#ADD8E6;color:#1a6fa8;font-weight:600;">📅 Add Today's Date</button>
+      <button class="btn-dl" onclick="downloadAttTemplate()">⬇ Download Template</button>
+      <button class="upload-btn" style="font-size:12px;padding:7px 14px;" onclick="openModal('att')">⬆ Upload Attendance</button>
+    </div>
+  </div>
+
+  <!-- Controls row -->
+  <div class="card" style="margin-bottom:16px;">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <input class="search-input" id="att-search" type="text" placeholder="🔍 Search Employee ID or Name..." oninput="renderAttTable()" style="min-width:240px;">
+      <select class="filter-select" id="att-cohort-filter" onchange="renderAttTable()" style="min-width:180px;"><option value="">All Cohorts</option></select>
+      <select class="filter-select" id="att-date-filter" onchange="renderAttTable()" style="min-width:150px;"><option value="">All Dates (Last 14)</option></select>
+      <div style="margin-left:auto;display:flex;gap:7px;flex-wrap:wrap;">
+        <button class="btn-dl" onclick="downloadAttReport('daily')">⬇ Daily Report</button>
+        <button class="btn-dl" onclick="downloadAttReport('cohort')">⬇ Cohort Report</button>
+        <button class="btn-dl" onclick="downloadAttReport('master')">⬇ Master Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;">
+    <div class="kpi-card green" style="cursor:default;padding:14px;"><div class="kpi-icon" style="font-size:20px;">✅</div><div class="kpi-val" style="font-size:24px;" id="att-kpi-present">—</div><div class="kpi-label">Present</div></div>
+    <div class="kpi-card red" style="cursor:default;padding:14px;"><div class="kpi-icon" style="font-size:20px;">❌</div><div class="kpi-val" style="font-size:24px;" id="att-kpi-absent">—</div><div class="kpi-label">Absent</div></div>
+    <div class="kpi-card yellow" style="cursor:default;padding:14px;"><div class="kpi-icon" style="font-size:20px;">📝</div><div class="kpi-val" style="font-size:24px;" id="att-kpi-exam">—</div><div class="kpi-label">Exam</div></div>
+    <div class="kpi-card teal" style="cursor:default;padding:14px;"><div class="kpi-icon" style="font-size:20px;">👥</div><div class="kpi-val" style="font-size:24px;" id="att-kpi-total">—</div><div class="kpi-label">Enrolled</div></div>
+    <div class="kpi-card orange" style="cursor:default;padding:14px;"><div class="kpi-icon" style="font-size:20px;">📊</div><div class="kpi-val" style="font-size:24px;" id="att-kpi-pct">—</div><div class="kpi-label">Att. %</div></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+      <div class="card-title" style="margin-bottom:0;">📋 Attendance Register</div>
+      <div style="font-size:11px;color:var(--muted);">Use dropdown in each cell to mark <span style="color:var(--green);font-weight:700;">P</span> / <span style="color:var(--red);font-weight:700;">AB</span> / <span style="color:var(--accent3);font-weight:700;">EXAM</span> — Empty cells default to <span style="color:var(--green);font-weight:700;">P</span></div>
+    </div>
+    <div class="table-wrap" id="att-table-wrap">
+      <div class="empty-state"><div class="emo">📋</div><p>Download the template → fill candidate details → upload to start attendance tracking.</p><p style="margin-top:8px;font-size:11px;color:var(--accent);">↑ Use the "Download Template" button above</p></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</div><!-- /main -->
+
+<!-- KPI DRAWER -->
+<div class="drawer-overlay" id="kpiDrawer" onclick="if(event.target===this)closeDrawer()">
+  <div class="drawer" style="position:relative;">
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    <div class="drawer-title" id="drawer-title">Details</div>
+    <div class="drawer-sub" id="drawer-sub"></div>
+    <div id="drawer-content"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="uploadModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ DATA ══
+let RAW_DATA=[], FILTERED_DATA=[];
+let ATTENDANCE={};  // empId -> { name, cohort, track, dates: {dateStr: 'P'|'AB'|'EXAM'} }
+let ATT_DATES=[];
+
+const TODAY=(()=>{const d=new Date();d.setHours(0,0,0,0);return d;})();
+const TODAY_STR=TODAY.toISOString().split('T')[0];
+
+const PRELOADED=[
+  {"type": "Intern", "cohort": "INTQEA26CRM001", "status": "In-Training", "vertical": "CRM", "headcount": 18, "exit": 0, "hold": 0, "inTraining": 18, "track": "CRM_Salesforce Selenium Automation Testing", "startDate": "2026-03-04", "coach": "D P, Ajiesya", "qualifier": "2026-03-27", "qualifier2": "2026-04-27", "qualifier3": "2026-05-12", "interim": "2026-05-06", "final": "2026-05-20", "release": "2026-05-22", "trainerName": "T, Anand", "mode": "In Person", "mentorName": "Soren, Babita", "bhName": "Caroline Geneva", "room": "SDB-1 - 6F - B WING - ODC - 6"},
+  {"type": "Intern", "cohort": "INTQEA26CY001", "status": "Graduated", "vertical": "Common", "headcount": 27, "exit": 1, "hold": 0, "inTraining": 26, "track": "Cypress Automation", "startDate": "2026-02-09", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-03-05", "qualifier2": "2026-03-30", "qualifier3": "2026-04-17", "interim": "2026-04-06", "final": "2026-04-24", "release": "2026-04-28", "trainerName": "Sairaj", "mode": "In-person", "mentorName": "Puliankalath, Chandrasekar", "bhName": "Elavarasan", "room": "SDB 2 - 7F - A WING - ODC -1"},
+  {"type": "Intern", "cohort": "INTQEA26DS001", "status": "In-Training", "vertical": "QEA Tech COE", "headcount": 33, "exit": 0, "hold": 0, "inTraining": 33, "track": "Data specialization", "startDate": "2026-03-18", "coach": "Selvin", "qualifier": "2026-04-24", "qualifier2": "2026-05-11", "qualifier3": "2026-06-02", "interim": "2026-05-18", "final": "2026-06-10", "release": "2026-06-12", "trainerName": "Mohan & Tanuja", "mode": "Virtual", "mentorName": "Gopiprasath", "bhName": "Bagaddeo, Shweta", "room": "SDB-1 - 6F - B WING - ODC 5A"},
+  {"type": "Intern", "cohort": "INTQEA26HC001", "status": "Graduated", "vertical": "HC/LS", "headcount": 32, "exit": 4, "hold": 0, "inTraining": 28, "track": "Health Care Facet Automation", "startDate": "2026-02-09", "coach": "Selvin", "qualifier": "", "qualifier2": "", "qualifier3": "", "interim": "2026-04-01", "final": "2026-04-20", "release": "2026-04-21", "trainerName": "Sagunthala/Abdul/Bala", "mode": "In Person", "mentorName": "Arumugam, Poovannan", "bhName": "Elavarasan,LNU", "room": "SDB 3 - 6F - B WING - ODC 7"},
+  {"type": "Intern", "cohort": "INTQEA26IPM001", "status": "In-Training", "vertical": "EPS", "headcount": 24, "exit": 0, "hold": 0, "inTraining": 24, "track": "IPM Product Testing with Selenium Automation", "startDate": "2026-03-05", "coach": "Thoppil, Sweta", "qualifier": "2026-03-30", "qualifier2": "2026-04-10", "qualifier3": "2026-04-30", "interim": "2026-05-12", "final": "2026-05-29", "release": "2026-02-06", "trainerName": "Shweta mahajan-", "mode": "Virtual", "mentorName": "Different Mentor for each week", "bhName": "Ronald Leger Doggett", "room": "SDB 1 - 6F - B WING - ODC 7"},
+  {"type": "Intern", "cohort": "INTQEA26OSP001", "status": "In-Training", "vertical": "EPS", "headcount": 21, "exit": 2, "hold": 0, "inTraining": 19, "track": "OSP Product Testing with Selenium Automation", "startDate": "2026-02-09", "coach": "Thoppil, Sweta", "qualifier": "2026-03-03", "qualifier2": "2026-04-06", "qualifier3": "2026-04-24", "interim": "2026-04-13", "final": "2026-05-04", "release": "2026-05-06", "trainerName": "Mohan, Poornima Swarna", "mode": "In-person", "mentorName": "Lakshmanan, Balasenthilmurugan", "bhName": "Lnu, Elavarasan", "room": "SDB1- 6F - B WING - ODC 7A"},
+  {"type": "Intern", "cohort": "INTQEA26PW001", "status": "In-Training Remedial", "vertical": "Common", "headcount": 16, "exit": 0, "hold": 0, "inTraining": 16, "track": "Playwright Automation", "startDate": "2026-02-09", "coach": "Thoppil, Sweta", "qualifier": "2026-03-05", "qualifier2": "2026-03-30", "qualifier3": "2026-04-17", "interim": "2026-04-06", "final": "2026-04-24", "release": "2026-04-28", "trainerName": "Navanath Matsagar, Sairaj", "mode": "In-person", "mentorName": "Kintali, Kavya", "bhName": "Lnu, Elavarasan", "room": "SDB 2 - 7F - A WING - ODC -1"},
+  {"type": "Intern", "cohort": "INTQEA26PW002", "status": "In-Training", "vertical": "HC/LS", "headcount": 29, "exit": 0, "hold": 0, "inTraining": 29, "track": "Playwright Automation", "startDate": "2026-02-04", "coach": "Jeeva", "qualifier": "2026-03-31", "qualifier2": "2026-05-22", "qualifier3": "2026-05-12", "interim": "2026-04-30", "final": "2026-05-20", "release": "2026-05-22", "trainerName": "Arun Kalyanakumar", "mode": "In Person", "mentorName": "Nidhi Juneja", "bhName": "Caroline Geneva", "room": "SDB1 - 6F - A WING - ODC 2A"},
+  {"type": "Intern", "cohort": "INTQEA26QE001", "status": "In-Training", "vertical": "HC/LS", "headcount": 52, "exit": 0, "hold": 0, "inTraining": 52, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-02-09", "coach": "Ashly", "qualifier": "2026-03-09", "qualifier2": "2026-04-02", "qualifier3": "2026-04-30", "interim": "2026-04-10", "final": "2026-05-11", "release": "2026-05-13", "trainerName": "BR, Mahalatchumi", "mode": "Virtual", "mentorName": "Kumar, Dinesh", "bhName": "A, Mohana", "room": "SDB-3 - 5F - B WING - ODC 5"},
+  {"type": "Intern", "cohort": "INTQEA26QE002", "status": "In-Training", "vertical": "BFS", "headcount": 53, "exit": 2, "hold": 0, "inTraining": 51, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-02-09", "coach": "Ashly", "qualifier": "2026-03-09", "qualifier2": "2026-04-02", "qualifier3": "2026-04-30", "interim": "2026-04-10", "final": "2026-05-11", "release": "2026-05-13", "trainerName": "Mohan", "mode": "In-person", "mentorName": "Balasubramanian, Krishnaprasad", "bhName": "A, Mohana", "room": "SDB-2 - 7F - A WING - ODC 2"},
+  {"type": "Intern", "cohort": "INTQEA26QE003", "status": "In-Training", "vertical": "INS", "headcount": 35, "exit": 0, "hold": 0, "inTraining": 35, "track": "Quality Engineer with Selenium Autuomation", "startDate": "2026-02-27", "coach": "Jeeva", "qualifier": "2026-03-30", "qualifier2": "2026-04-24", "qualifier3": "2026-05-21", "interim": "2026-05-04", "final": "2026-05-29", "release": "2026-06-02", "trainerName": "Pal Haradhan", "mode": "Virtual", "mentorName": "Sakthi Kamalambigai", "bhName": "Lakshmi Priya", "room": "SDB1 - 6F -A Wing - ODC 4"},
+  {"type": "Intern", "cohort": "INTQEA26QE004", "status": "In-Training", "vertical": "HC/LS", "headcount": 20, "exit": 0, "hold": 0, "inTraining": 20, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-03-11", "coach": "Thoppil, Sweta", "qualifier": "2026-04-08", "qualifier2": "2026-05-06", "qualifier3": "2026-06-02", "interim": "2026-05-14", "final": "2026-06-10", "release": "2026-06-12", "trainerName": "Pal, Haradhan", "mode": "Virtual", "mentorName": "Amala Jenifer", "bhName": "Lnu, Elavarasan", "room": "SDB1 | 6 Floor - Wing B - ODC 6A"},
+  {"type": "Intern", "cohort": "INTQEA26SAP001", "status": "In-Training", "vertical": "SAP", "headcount": 13, "exit": 0, "hold": 0, "inTraining": 13, "track": "SAP S/4 HANA", "startDate": "2026-03-04", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-03-18", "qualifier2": "2026-04-10", "qualifier3": "2026-05-29", "interim": "2026-04-17", "final": "2026-06-03", "release": "2026-06-05", "trainerName": "Multiple Trainers", "mode": "In-person", "mentorName": "Paramadass, Raja", "bhName": "Caroline Geneva", "room": "SDB 1 - 6F - B WING - ODC 8"},
+  {"type": "Intern", "cohort": "INTQEA26SAPGN001", "status": "In-Training", "vertical": "SAP", "headcount": 17, "exit": 0, "hold": 0, "inTraining": 17, "track": "SAP S/4 HANA", "startDate": "2026-03-04", "coach": "Selvin", "qualifier": "2026-03-18", "qualifier2": "2026-04-09", "qualifier3": "2026-05-27", "interim": "2026-04-17", "final": "2026-06-03", "release": "2026-06-05", "trainerName": "Multiple Trainers", "mode": "Virtual", "mentorName": "Paramadass, Raja", "bhName": "Geneva, Caroline", "room": "SDB 1 - 6F - B WING - ODC 8"},
+  {"type": "Intern", "cohort": "INTQEA26SD001", "status": "In-Training", "vertical": "Common", "headcount": 41, "exit": 1, "hold": 0, "inTraining": 40, "track": "SDET", "startDate": "2026-02-09", "coach": "Selvin", "qualifier": "2026-03-06", "qualifier2": "2026-04-02", "qualifier3": "2026-05-15", "interim": "2026-04-10", "final": "2026-05-25", "release": "2026-05-27", "trainerName": "J, Vijayalakshmi", "mode": "Virtual", "mentorName": "Mani, Jegannathan", "bhName": "Elavarasan,LNU", "room": "SDB 1 - 7F - A WING - ODC 1"},
+  {"type": "Intern", "cohort": "INTQEA26SD002", "status": "In-Training", "vertical": "Common", "headcount": 42, "exit": 1, "hold": 0, "inTraining": 41, "track": "SDET", "startDate": "2026-02-09", "coach": "Selvin", "qualifier": "2026-03-06", "qualifier2": "2026-04-02", "qualifier3": "2026-05-15", "interim": "2026-04-10", "final": "2026-05-25", "release": "2026-05-27", "trainerName": "Shanmugasundaram, Maheswaran", "mode": "In-person", "mentorName": "Mani, Jegannathan", "bhName": "Elavarasan,LNU", "room": "SDB 1 - 7F - A WING - ODC 4"},
+  {"type": "Intern", "cohort": "INTQEA26SD003", "status": "In-Training", "vertical": "Common", "headcount": 44, "exit": 0, "hold": 0, "inTraining": 44, "track": "SDET", "startDate": "2026-02-25", "coach": "Selvin", "qualifier": "2026-03-26", "qualifier2": "2026-04-21", "qualifier3": "2026-06-02", "interim": "2026-04-29", "final": "2026-06-10", "release": "2026-06-12", "trainerName": "Basha J, Salim", "mode": "Virtual", "mentorName": "Paramasivam, Balasubramanian", "bhName": "Sivaraman, Lakshmi Priya", "room": "SDB 1 - 7F - A WING - ODC 2"},
+  {"type": "Intern", "cohort": "INTQEA26SD004", "status": "In-Training", "vertical": "Common", "headcount": 45, "exit": 0, "hold": 0, "inTraining": 45, "track": "SDET", "startDate": "2026-02-25", "coach": "Selvin", "qualifier": "2026-03-26", "qualifier2": "2026-04-21", "qualifier3": "2026-06-02", "interim": "2026-04-29", "final": "2026-06-10", "release": "2026-06-12", "trainerName": "T, Anand", "mode": "In-person", "mentorName": "Paramasivam, Balasubramanian", "bhName": "Sivaraman, Lakshmi Priya", "room": "SDB 1 - 7F - B WING - ODC 8"},
+  {"type": "intern", "cohort": "INTQEA26SD005", "status": "In-Training", "vertical": "BFS", "headcount": 33, "exit": 0, "hold": 0, "inTraining": 34, "track": "SDET", "startDate": "2026-03-23", "coach": "Ajiesya", "qualifier": "2026-04-20", "qualifier2": "2026-05-15", "qualifier3": "2026-06-25", "interim": "2026-05-25", "final": "2026-07-03", "release": "2026-07-07", "trainerName": "Sachin", "mode": "In-person", "mentorName": "Chandrakumar, Ramyalakshmi", "bhName": "Lnu, Madhusudhan", "room": "SDB-1 - 6F - B WING - ODC 4A"},
+  {"type": "intern", "cohort": "INTQEA26SD006", "status": "In-Training", "vertical": "Common", "headcount": 13, "exit": 0, "hold": 0, "inTraining": 13, "track": "SDET", "startDate": "2026-03-26", "coach": "Ajiesya", "qualifier": "2026-04-23", "qualifier2": "2026-05-20", "qualifier3": "2026-06-30", "interim": "2026-05-28", "final": "2026-07-08", "release": "2026-07-10", "trainerName": "J, Vijayalakshmi", "mode": "Virtual", "mentorName": "Rajendran, Chellaprasanna", "bhName": "V A, Satiya Anand", "room": "SDB-1 - 7F - C WING - Victoria hall"},
+  {"type": "Intern", "cohort": "INTTZ26TPHC001", "status": "Graduated", "vertical": "", "headcount": 4, "exit": 0, "hold": 0, "inTraining": 4, "track": "", "startDate": "2026-02-20", "coach": "Thoppil, Sweta", "qualifier": "2026-02-23", "qualifier2": "", "qualifier3": "", "interim": "2026-03-20", "final": "2026-04-16", "release": "2026-04-17", "trainerName": "BU TRAINING", "mode": "In-person", "mentorName": "", "bhName": "NO BH TRAINING", "room": "CKC COGNIZANT"},
+  {"type": "FTE", "cohort": "QEA26CRMAT001", "status": "In-Training Remedial", "vertical": "CRM", "headcount": 15, "exit": 0, "hold": 0, "inTraining": 15, "track": "CRM_Salesforce Selenium Automation Testing", "startDate": "2026-02-03", "coach": "Thoppil, Sweta", "qualifier": "2026-02-24", "qualifier2": "2026-03-27", "qualifier3": "2026-04-10", "interim": "2026-04-03", "final": "2026-04-20", "release": "2026-04-22", "trainerName": "Mohan, Poornima Swarna", "mode": "In-person", "mentorName": "Iyamperumal, Subhashree", "bhName": "Mohana", "room": "SDB 1 - 7F - ODC 9"},
+  {"type": "FTE", "cohort": "QEA26CY002", "status": "Graduated", "vertical": "Common", "headcount": 26, "exit": 2, "hold": 0, "inTraining": 24, "track": "Cypress Automation", "startDate": "2026-01-20", "coach": "D P, Ajiesya", "qualifier": "2026-02-16", "qualifier2": "", "qualifier3": "2026-03-24", "interim": "2026-03-17", "final": "2026-04-06", "release": "2026-04-08", "trainerName": "Suvetha", "mode": "In-person", "mentorName": "J Jeba Begam", "bhName": "Lakshmi priya", "room": "SDB 1 - 6F - A WING - ODC - 1A"},
+  {"type": "FTE", "cohort": "QEA26HC001", "status": "Graduated", "vertical": "HC/LS", "headcount": 21, "exit": 1, "hold": 0, "inTraining": 20, "track": "Health Care Facet Automation", "startDate": "2026-02-09", "coach": "Maria Faustina Gomez, Angel", "qualifier": "", "qualifier2": "", "qualifier3": "", "interim": "2026-04-01", "final": "2026-04-20", "release": "2026-04-21", "trainerName": "Devathilagai", "mode": "Virtual", "mentorName": "Rayakota, Murali Krishna", "bhName": "Krithika ahuja", "room": "SDB-3 - 6F - A WING - ODC - 2"},
+  {"type": "FTE", "cohort": "QEA26HC002", "status": "In-Training", "vertical": "QEA HC", "headcount": 38, "exit": 1, "hold": 0, "inTraining": 37, "track": "Health Care Facet Automation", "startDate": "2026-03-03", "coach": "Thoppil, Sweta", "qualifier": "2026-04-01", "qualifier2": "2026-04-30", "qualifier3": "2026-05-19", "interim": "2026-05-08", "final": "2026-05-27", "release": "2026-05-29", "trainerName": "Lnu, Venkataraman", "mode": "Virtual", "mentorName": "Roopa", "bhName": "Ronald Leger Doggett", "room": "SDB 1 - 6F - A WING - ODC 4A"},
+  {"type": "FTE", "cohort": "QEA26IPM001", "status": "In-Training", "vertical": "EPS", "headcount": 21, "exit": 0, "hold": 0, "inTraining": 21, "track": "IPM Product Testing with Selenium Automation", "startDate": "2026-02-13", "coach": "Thoppil, Sweta", "qualifier": "2026-03-06", "qualifier2": "2026-03-04", "qualifier3": "2026-05-21", "interim": "2026-04-20", "final": "2026-05-08", "release": "2026-05-12", "trainerName": "Navanath Matsagar, Sairaj", "mode": "In-person", "mentorName": "Different Mentor for each week", "bhName": "Khanjan Jilesh Kadi", "room": "Academy GF - Room no 11"},
+  {"type": "FTE", "cohort": "QEA26NFT001", "status": "Graduated", "vertical": "NFT", "headcount": 16, "exit": 0, "hold": 0, "inTraining": 16, "track": "Performance Engineering", "startDate": "2025-11-27", "coach": "Princy J", "qualifier": "2025-12-18", "qualifier2": "", "qualifier3": "", "interim": "2026-01-05", "final": "2026-03-02", "release": "2026-03-04", "trainerName": "Debraj", "mode": "In-person", "mentorName": "Saravana, Swaminathan", "bhName": "Caroline, Geneva", "room": "SDB 1 - 2F - A WING - ODC 3"},
+  {"type": "FTE", "cohort": "QEA26NFT002", "status": "Graduated", "vertical": "NFT", "headcount": 15, "exit": 0, "hold": 0, "inTraining": 15, "track": "Performance Engineering", "startDate": "2025-11-27", "coach": "Princy J", "qualifier": "2025-12-18", "qualifier2": "", "qualifier3": "", "interim": "2026-01-05", "final": "2026-03-02", "release": "2026-03-04", "trainerName": "Debraj", "mode": "In-person", "mentorName": "Saravana, Swaminathan", "bhName": "Caroline, Geneva", "room": "SDB 1 - 2F - A WING - ODC 3"},
+  {"type": "FTE", "cohort": "QEA26NFT003", "status": "Partially Graduated", "vertical": "NFT", "headcount": 15, "exit": 1, "hold": 0, "inTraining": 14, "track": "Performance Engineering", "startDate": "2026-01-16", "coach": "Selvin", "qualifier": "2026-02-06", "qualifier2": "2026-02-13", "qualifier3": "2026-04-20", "interim": "2026-02-27", "final": "2026-04-28", "release": "2026-04-30", "trainerName": "Multiple Trainers", "mode": "In-person", "mentorName": "Saravana, Swaminathan", "bhName": "Elavarasan,LNU", "room": "SDB 1 - 2F - A WING - ODC 3A"},
+  {"type": "FTE", "cohort": "QEA26NFT004", "status": "Partially Graduated", "vertical": "NFT", "headcount": 15, "exit": 0, "hold": 0, "inTraining": 15, "track": "Performance Engineering", "startDate": "2026-01-16", "coach": "Selvin", "qualifier": "2026-02-06", "qualifier2": "2026-02-13", "qualifier3": "2026-04-20", "interim": "2026-02-27", "final": "2026-04-28", "release": "2026-04-30", "trainerName": "Multiple Trainers", "mode": "In-person", "mentorName": "Saravana, Swaminathan", "bhName": "Elavarasan,LNU", "room": "SDB 1 - 2F - A WING - ODC 3A"},
+  {"type": "FTE", "cohort": "QEA26NFT005", "status": "In-Training", "vertical": "NFT", "headcount": 22, "exit": 0, "hold": 0, "inTraining": 22, "track": "Performance Engineering", "startDate": "2026-02-13", "coach": "Princy J", "qualifier": "2026-03-27", "qualifier2": "2026-03-25", "qualifier3": "2026-05-19", "interim": "2026-03-30", "final": "2026-05-25", "release": "2026-05-26", "trainerName": "Senthil N", "mode": "In-person", "mentorName": "Saravana, Swaminathan", "bhName": "Khanjan Kadi", "room": "SDB 2- C Wing - ODC- 9"},
+  {"type": "FTE", "cohort": "QEA26PW004", "status": "Graduated", "vertical": "PNR", "headcount": 16, "exit": 1, "hold": 0, "inTraining": 15, "track": "Playwright Automation", "startDate": "", "coach": "Thoppil, Sweta", "qualifier": "", "qualifier2": "", "qualifier3": "2026-03-24", "interim": "2026-03-17", "final": "2026-04-06", "release": "2026-04-08", "trainerName": "Pal, Haradhan", "mode": "Virtual", "mentorName": "Swaminathan, Sethumadhavi", "bhName": "Madhusudhan", "room": "SDB 1 - 6F - A WING - ODC - 1A"},
+  {"type": "FTE", "cohort": "QEA26PW005", "status": "In-Training", "vertical": "Common", "headcount": 21, "exit": 0, "hold": 0, "inTraining": 21, "track": "Playwright Automation", "startDate": "2026-02-09", "coach": "D P, Ajiesya", "qualifier": "2026-03-05", "qualifier2": "2026-03-30", "qualifier3": "2026-04-16", "interim": "2026-04-06", "final": "2026-04-24", "release": "2026-04-28", "trainerName": "Gururajan, SathishKumar", "mode": "In-person", "mentorName": "Kintali, Kavya", "bhName": "Ahuja, Kritika", "room": "SDB-2 - 6F - B WING - ODC - 7"},
+  {"type": "FTE", "cohort": "QEA26PW006", "status": "In-Training", "vertical": "PNR", "headcount": 29, "exit": 2, "hold": 0, "inTraining": 27, "track": "Playwright Automation", "startDate": "2026-03-09", "coach": "Ashly", "qualifier": "2026-04-03", "qualifier2": "2026-04-27", "qualifier3": "2026-05-15", "interim": "2026-05-06", "final": "2026-05-25", "release": "2026-05-27", "trainerName": "Narasimman, Lakshmi", "mode": "In-person", "mentorName": "Mathapati, Basavaraj", "bhName": "Doggett, Ronald", "room": "SDB-1 - 6F - A WING - ODC 3A"},
+  {"type": "FTE", "cohort": "QEA26QE016", "status": "Graduated", "vertical": "INS", "headcount": 24, "exit": 0, "hold": 1, "inTraining": 23, "track": "Quality Engineer with Selenium Automation", "startDate": "2025-11-28", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2025-12-29", "qualifier2": "", "qualifier3": "", "interim": "2026-02-03", "final": "2026-03-02", "release": "2026-03-04", "trainerName": "Narasimman, Lakshmi", "mode": "In-person", "mentorName": "Jestin Paul David", "bhName": "Shweta, Bagaddeo", "room": "SDB 1 - 7F - B WING - ODC - 7"},
+  {"type": "FTE", "cohort": "QEA26QE017", "status": "Graduated", "vertical": "PNR", "headcount": 23, "exit": 0, "hold": 0, "inTraining": 23, "track": "Quality Engineer with Selenium Automation", "startDate": "2025-11-28", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2025-12-29", "qualifier2": "", "qualifier3": "", "interim": "2026-02-03", "final": "2026-03-02", "release": "2026-03-04", "trainerName": "Narasimman, Lakshmi", "mode": "In-person", "mentorName": "Vidhya Lakshmanan", "bhName": "Shweta, Bagaddeo", "room": "SDB 1 - 7F - B WING - ODC - 7"},
+  {"type": "FTE", "cohort": "QEA26QE018", "status": "Graduated", "vertical": "BFS", "headcount": 22, "exit": 1, "hold": 0, "inTraining": 21, "track": "Quality Engineer with Selenium Automation", "startDate": "2025-12-05", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2025-01-06", "qualifier2": "", "qualifier3": "", "interim": "2026-02-10", "final": "2026-03-09", "release": "2026-03-11", "trainerName": "S, Vinothkumar", "mode": "Virtual", "mentorName": "Ramesh, Roshima", "bhName": "Krishnaveni", "room": "SDB 1 - 6F - A WING - ODC - 5A"},
+  {"type": "FTE", "cohort": "QEA26QE019", "status": "Graduated", "vertical": "INS", "headcount": 22, "exit": 1, "hold": 0, "inTraining": 21, "track": "Quality Engineer with Selenium Automation", "startDate": "2025-12-05", "coach": "D P, Ajiesya", "qualifier": "2025-01-06", "qualifier2": "", "qualifier3": "2026-05-24", "interim": "2026-02-10", "final": "2026-03-09", "release": "2026-03-11", "trainerName": "LNU, Mouneshwar", "mode": "In-person", "mentorName": "Sheeba, Alice Pon", "bhName": "Krishnaveni", "room": "SDB 1 - 6F - A WING - ODC - 4A"},
+  {"type": "FTE", "cohort": "QEA26QE020", "status": "Graduated", "vertical": "BFS", "headcount": 21, "exit": 1, "hold": 0, "inTraining": 20, "track": "Quality Engineer with Selenium Automation", "startDate": "2025-12-18", "coach": "D P, Ajiesya", "qualifier": "2026-01-20", "qualifier2": "", "qualifier3": "2026-05-24", "interim": "2026-02-23", "final": "2026-03-20", "release": "2026-03-24", "trainerName": "Lakshmi Narasimhan", "mode": "In-person", "mentorName": "Renuka R", "bhName": "Krishnaveni", "room": "SDB 1 - 7F - B WING - ODC - 5"},
+  {"type": "FTE", "cohort": "QEA26QE021", "status": "Graduated", "vertical": "INS", "headcount": 21, "exit": 1, "hold": 0, "inTraining": 20, "track": "Quality Engineer with Selenium Automation", "startDate": "2025-12-18", "coach": "D P, Ajiesya", "qualifier": "2026-01-20", "qualifier2": "", "qualifier3": "2026-05-24", "interim": "2026-02-23", "final": "2026-03-20", "release": "2026-03-24", "trainerName": "Lakshmi Narasimhan", "mode": "In-person", "mentorName": "Suruli Ravi", "bhName": "Krishnaveni", "room": "SDB 1 - 7F - B WING - ODC - 5"},
+  {"type": "FTE", "cohort": "QEA26QE022", "status": "Graduated", "vertical": "HC/LS", "headcount": 21, "exit": 0, "hold": 1, "inTraining": 20, "track": "Quality Engineer with Selenium Automation", "startDate": "2025-12-18", "coach": "Selvin", "qualifier": "2026-01-20", "qualifier2": "", "qualifier3": "2026-03-12", "interim": "2026-02-23", "final": "2026-03-20", "release": "2026-03-24", "trainerName": "Venkatesh Iyengar", "mode": "In-person", "mentorName": "Pitchaiah, Shanmugasundaram", "bhName": "Mugundan, Lavanya", "room": "SDB 1 - 7F - B WING - ODC - 6"},
+  {"type": "FTE", "cohort": "QEA26QE023", "status": "Graduated", "vertical": "CMT", "headcount": 22, "exit": 0, "hold": 1, "inTraining": 21, "track": "Quality Engineer with Selenium Automation", "startDate": "2025-12-18", "coach": "Thoppil, Sweta", "qualifier": "2026-01-20", "qualifier2": "", "qualifier3": "2026-05-24", "interim": "2026-02-23", "final": "2026-03-20", "release": "2026-03-24", "trainerName": "Venkatesh Iyengar", "mode": "In-person", "mentorName": "Satish Kumar Venu", "bhName": "Mugundan, Lavanya", "room": "SDB 1 - 7F - B WING - ODC - 6"},
+  {"type": "FTE", "cohort": "QEA26QE024", "status": "Partially Graduated", "vertical": "PNR", "headcount": 24, "exit": 2, "hold": 0, "inTraining": 22, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-01-22", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-02-20", "qualifier2": "2026-03-18", "qualifier3": "2026-04-16", "interim": "2026-03-26", "final": "2026-04-23", "release": "2026-04-27", "trainerName": "Deepak Sharma", "mode": "In-person", "mentorName": "Philip Sundarrajan Gnanaraj", "bhName": "Ranjini sheshadri", "room": "SDB 1 - 6F - B WING - ODC - 5"},
+  {"type": "FTE", "cohort": "QEA26QE025", "status": "Partially Graduated", "vertical": "PNR", "headcount": 24, "exit": 1, "hold": 0, "inTraining": 23, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-01-22", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-02-20", "qualifier2": "2026-03-18", "qualifier3": "2026-04-16", "interim": "2026-03-26", "final": "2026-04-23", "release": "2026-04-27", "trainerName": "Deepak Sharma", "mode": "In-person", "mentorName": "Philip Sundarrajan Gnanaraj", "bhName": "Ranjini sheshadri", "room": "SDB 1 - 5F - A WING - ODC - 5"},
+  {"type": "FTE", "cohort": "QEA26QE026", "status": "Partially Graduated", "vertical": "HC/LS", "headcount": 25, "exit": 0, "hold": 0, "inTraining": 25, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-01-22", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-02-20", "qualifier2": "2026-03-18", "qualifier3": "2026-04-16", "interim": "2026-03-26", "final": "2026-04-23", "release": "2026-04-27", "trainerName": "Venkataraman", "mode": "In-person", "mentorName": "Venkatachalam, Vishnu Vasudevan", "bhName": "Krishnaveni H", "room": "SDB 1 - 5F - B WING - ODC - 5A"},
+  {"type": "FTE", "cohort": "QEA26QE027", "status": "In-Training", "vertical": "HC/LS", "headcount": 25, "exit": 0, "hold": 0, "inTraining": 25, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-01-22", "coach": "D P, Ajiesya", "qualifier": "2026-02-20", "qualifier2": "2026-03-18", "qualifier3": "2026-04-16", "interim": "2026-03-26", "final": "2026-04-23", "release": "2026-04-27", "trainerName": "Lnu, Venkataraman", "mode": "In-person", "mentorName": "Sujitha", "bhName": "Krishnaveni", "room": "SDB-1 - 5F - B WING - ODC - 5"},
+  {"type": "FTE", "cohort": "QEA26QE028", "status": "In-Training Remedial", "vertical": "INS", "headcount": 24, "exit": 1, "hold": 0, "inTraining": 23, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-02-22", "coach": "Thoppil, Sweta", "qualifier": "2026-02-20", "qualifier2": "2026-03-18", "qualifier3": "2026-04-16", "interim": "2026-03-26", "final": "2026-04-23", "release": "2026-04-27", "trainerName": "Sharma, Deepak", "mode": "In-person", "mentorName": "Samidurai, Rajkamal", "bhName": "RanjiniSeshadri", "room": "SDB1, 5 F , Wing B,  ODC - 6A"},
+  {"type": "FTE", "cohort": "QEA26QE034", "status": "In-Training", "vertical": "PNR", "headcount": 46, "exit": 0, "hold": 0, "inTraining": 46, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-02-17", "coach": "Ashly", "qualifier": "2026-03-17", "qualifier2": "2026-04-10", "qualifier3": "2026-05-11", "interim": "2026-04-21", "final": "2026-05-19", "release": "2026-05-21", "trainerName": "Gururajan, SathishKumar", "mode": "In-person", "mentorName": "Lakshmanan, Vidhya", "bhName": "Kadi, Khanjan", "room": "SDB-2 - 1F - A WING - ODC 4"},
+  {"type": "FTE", "cohort": "QEA26QEPT006", "status": "In-Training", "vertical": "PNR", "headcount": 25, "exit": 0, "hold": 1, "inTraining": 24, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-01-27", "coach": "Ashly", "qualifier": "2026-02-24", "qualifier2": "2026-03-19", "qualifier3": "2026-04-16", "interim": "2026-03-30", "final": "2026-04-27", "release": "2026-04-29", "trainerName": "P, Devathilagai", "mode": "Virtual", "mentorName": "G, Dhanavantha Gopala Krishnan", "bhName": "Kolati, Syam", "room": "SDB-3 - 5F - A WING - ODC - 3"},
+  {"type": "FTE", "cohort": "QEA26QEPT007", "status": "In-Training", "vertical": "HC/LS", "headcount": 26, "exit": 0, "hold": 1, "inTraining": 25, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-01-27", "coach": "Ashly", "qualifier": "2026-02-24", "qualifier2": "2026-03-19", "qualifier3": "2026-04-16", "interim": "2026-03-30", "final": "2026-04-27", "release": "2026-04-29", "trainerName": "P, Devathilagai", "mode": "Virtual", "mentorName": "Ramakrishnan, Kanagarajan", "bhName": "Kolati, Syam", "room": "SDB-3 - 5F - A WING - ODC - 3"},
+  {"type": "FTE", "cohort": "QEA26QEPT008", "status": "Partially Graduated", "vertical": "INS", "headcount": 46, "exit": 0, "hold": 0, "inTraining": 46, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-01-30", "coach": "Selvin", "qualifier": "2026-02-27", "qualifier2": "2026-03-25", "qualifier3": "2026-04-22", "interim": "2026-04-02", "final": "2026-04-30", "release": "2026-05-05", "trainerName": "Arun K", "mode": "In-person", "mentorName": "Suruli Ravi", "bhName": "R, Shradha", "room": "SDB 1 - 7F - A WING - ODC 3"},
+  {"type": "FTE", "cohort": "QEA26QEPT009", "status": "In-Training", "vertical": "INS", "headcount": 37, "exit": 0, "hold": 0, "inTraining": 37, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-02-24", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-03-25", "qualifier2": "2026-04-21", "qualifier3": "2026-05-19", "interim": "2026-04-28", "final": "2026-05-26", "release": "2026-05-28", "trainerName": "Lalitha", "mode": "Virtual", "mentorName": "Suruli Ravi", "bhName": "R, Shradha", "room": "SDB 3 - 7F - A WING - ODC - 1"},
+  {"type": "FTE", "cohort": "QEA26QEPT010", "status": "In-Training", "vertical": "CMT", "headcount": 26, "exit": 0, "hold": 0, "inTraining": 26, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-02-24", "coach": "D P, Ajiesya", "qualifier": "2026-03-25", "qualifier2": "2026-04-21", "qualifier3": "2026-05-19", "interim": "2026-04-28", "final": "2026-05-26", "release": "2026-05-28", "trainerName": "Manojith", "mode": "In-person", "mentorName": "Kannan, Indira", "bhName": "Krishnaveni H", "room": "SDB 3 - 5F - A WING - ODC 2"},
+  {"type": "FTE", "cohort": "QEA26QEPT011", "status": "In-Training", "vertical": "PNR", "headcount": 27, "exit": 1, "hold": 0, "inTraining": 26, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-02-24", "coach": "D P, Ajiesya", "qualifier": "2026-03-25", "qualifier2": "2026-04-21", "qualifier3": "2026-05-19", "interim": "2026-04-28", "final": "2026-05-26", "release": "2026-05-28", "trainerName": "Manojith", "mode": "In-person", "mentorName": "Sundararaman", "bhName": "R, Shradha", "room": "SDB 3 - 5F - A WING - ODC 2"},
+  {"type": "FTE", "cohort": "QEA26QEPT012", "status": "In-Training", "vertical": "HC", "headcount": 27, "exit": 0, "hold": 0, "inTraining": 27, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-02-24", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-03-25", "qualifier2": "2026-04-21", "qualifier3": "2026-05-19", "interim": "2026-04-28", "final": "2026-05-26", "release": "2026-05-28", "trainerName": "Venkatesh", "mode": "In-person", "mentorName": "Jeevananthan Eswaran", "bhName": "R, Shradha", "room": "SDB 2 - 4F - ODC - 3"},
+  {"type": "FTE", "cohort": "QEA26QEPT013", "status": "In-Training", "vertical": "INS", "headcount": 35, "exit": 1, "hold": 0, "inTraining": 34, "track": "Quality Engineer with Selenium Autuomation", "startDate": "2026-02-06", "coach": "Jeeva", "qualifier": "2026-04-06", "qualifier2": "2026-04-30", "qualifier3": "2026-05-28", "interim": "2026-05-11", "final": "2026-06-05", "release": "2026-06-09", "trainerName": "Singh Pravin", "mode": "In Person", "mentorName": "Suganya Rajappa", "bhName": "Ronald Doggett", "room": "SDB1 - 6F - B Wing - ODC 8A"},
+  {"type": "FTE", "cohort": "QEA26QEPT014", "status": "In-Training", "vertical": "RCGTH", "headcount": 22, "exit": 0, "hold": 0, "inTraining": 22, "track": "Quality Engineer with Selenium Autuomation", "startDate": "2026-03-09", "coach": "Jeeva", "qualifier": "2026-04-07", "qualifier2": "2026-05-04", "qualifier3": "2026-05-29", "interim": "2026-05-12", "final": "2026-06-08", "release": "2026-06-10", "trainerName": "Singh Pravin", "mode": "In-person", "mentorName": "Avinash", "bhName": "Ronald Doggett", "room": "SDB1 - 2F - B WING - ODC 5A"},
+  {"type": "FTE", "cohort": "QEA26QEPT015", "status": "In-Training", "vertical": "BFS", "headcount": 23, "exit": 0, "hold": 0, "inTraining": 23, "track": "Quality Engineer with Selenium Autuomation", "startDate": "2026-04-01", "coach": "Jeeva", "qualifier": "2026-05-04", "qualifier2": "2026-05-26", "qualifier3": "2026-06-22", "interim": "2026-06-03", "final": "2026-06-30", "release": "2026-07-02", "trainerName": "Saranya", "mode": "In-person", "mentorName": "Renuka Raghavan", "bhName": "Lakshmi Priya", "room": "SDB-1 - 7F - B WING - ODC 7"},
+  {"type": "FTE", "cohort": "QEA26QEPT016", "status": "In-Training", "vertical": "CMT", "headcount": 20, "exit": 0, "hold": 0, "inTraining": 20, "track": "Quality Engineer with Selenium Autuomation", "startDate": "2026-04-01", "coach": "Jeeva", "qualifier": "2026-05-04", "qualifier2": "2026-05-26", "qualifier3": "2026-06-22", "interim": "2026-06-03", "final": "2026-06-30", "release": "2026-07-02", "trainerName": "Saranya", "mode": "In-person", "mentorName": "Vijayalakshmi Dhandapani", "bhName": "Lakshmi Priya", "room": "SDB-1 - 7F - B WING - ODC 7"},
+  {"type": "FTE", "cohort": "QEA26SAP001", "status": "Partially Graduated", "vertical": "SAP", "headcount": 26, "exit": 1, "hold": 0, "inTraining": 25, "track": "SAP S/4 HANA", "startDate": "2026-02-03", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-02-17", "qualifier2": "2026-03-10", "qualifier3": "2026-04-27", "interim": "2026-03-17", "final": "2026-05-05", "release": "2026-05-07", "trainerName": "Multiple Trainers", "mode": "Virtual", "mentorName": "Raja Paramadass", "bhName": "Caroline Geneva", "room": "SDB 1 - 5F - B WING - ODC - 8A"},
+  {"type": "intern", "cohort": "INTQEA26NFTGN001", "status": "In-Training", "vertical": "NFT", "headcount": 13, "exit": 0, "hold": 0, "inTraining": 13, "track": "Performance Engineering With SDET FSE Jmeter", "startDate": "2026-03-31", "coach": "Princy J", "qualifier": "2026-05-14", "qualifier2": "2026-06-11", "qualifier3": "2026-07-06", "interim": "2026-06-18", "final": "2026-07-14", "release": "2026-07-15", "trainerName": "Sachin", "mode": "In-person", "mentorName": "Saravana, Swaminathan", "bhName": "Geneva, Caroline", "room": "SDB 1- 6F- A WING- ODC 2"},
+  {"type": "intern", "cohort": "INTQEA26NFTGN002", "status": "In-Training", "vertical": "NFT", "headcount": 11, "exit": 0, "hold": 0, "inTraining": 11, "track": "Performance Engineering With SDET FSE Load runner", "startDate": "2026-03-31", "coach": "Princy J", "qualifier": "2026-05-14", "qualifier2": "2026-06-11", "qualifier3": "2026-07-06", "interim": "2026-06-18", "final": "2026-07-14", "release": "2026-07-15", "trainerName": "Sachin", "mode": "In-person", "mentorName": "Saravana, Swaminathan", "bhName": "Geneva, Caroline", "room": "SDB 1- 6F- A WING- ODC 2"},
+  {"type": "intern", "cohort": "INTTZ26QE001", "status": "In-Training", "vertical": "Virtual", "headcount": 20, "exit": 2, "hold": 0, "inTraining": 11, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-03-30", "coach": "Thoppil, Sweta", "qualifier": "2026-04-27", "qualifier2": "2026-03-22", "qualifier3": "2026-06-18", "interim": "2026-06-01", "final": "2026-06-26", "release": "2026-06-30", "trainerName": "Ahmed, Nazir", "mode": "In-person", "mentorName": "Multiple Trainers", "bhName": "Geneva, Caroline", "room": "SDB 3 - 5F - A WING - ODC 1"},
+  {"type": "intern", "cohort": "INTQEA26HC003", "status": "In-Training", "vertical": "HC", "headcount": 23, "exit": 0, "hold": 0, "inTraining": 23, "track": "Health Care Facet Automation", "startDate": "", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-05-21", "qualifier2": "2026-06-18", "qualifier3": "2026-07-07", "interim": "2026-06-25", "final": "2026-07-14", "release": "2026-07-16", "trainerName": "Manojith Ramachandran", "mode": "Virtual", "mentorName": "", "bhName": "Joseph Gerard", "room": "SDB 1 - 1F - A Wing - ODC - 6"},
+  {"type": "intern", "cohort": "INTQEA26PW003", "status": "In-Training", "vertical": "Common", "headcount": 25, "exit": 0, "hold": 0, "inTraining": 25, "track": "Playwright Automation", "startDate": "2026-05-04", "coach": "Maria Faustina Gomez, Angel", "qualifier": "2026-05-28", "qualifier2": "2026-06-19", "qualifier3": "2026-07-08", "interim": "2026-06-26", "final": "2026-07-15", "release": "2026-07-17", "trainerName": "Poornima Swarna Mohan", "mode": "In-person", "mentorName": "Kavya Kintali", "bhName": "Krishnaveni", "room": "SDB 1 - 6F - B Wing - ODC - 1"},
+  {"type": "FTE", "cohort": "QEA26QEPT018", "status": "In-Training", "vertical": "INS", "headcount": 25, "exit": 0, "hold": 0, "inTraining": 25, "track": "Quality Engineer with Selenium Automation", "startDate": "", "coach": "D P, Ajiesya", "qualifier": "2026-05-29", "qualifier2": "", "qualifier3": "", "interim": "2026-07-01", "final": "2026-07-28", "release": "2026-07-30", "trainerName": "Sairaj", "mode": "In-person", "mentorName": "Ravi", "bhName": "Lnu, Madhusudhan", "room": "SDB 1- 4F- B WING- ODC 6"},
+  {"type": "FTE", "cohort": "QEA26QEPT019", "status": "In-Training", "vertical": "", "headcount": 25, "exit": 0, "hold": 0, "inTraining": 25, "track": "Quality Engineer with Selenium Automation", "startDate": "", "coach": "D P, Ajiesya", "qualifier": "2026-05-29", "qualifier2": "", "qualifier3": "", "interim": "2026-07-01", "final": "2026-07-28", "release": "2026-07-30", "trainerName": "Sairaj", "mode": "In-person", "mentorName": "", "bhName": "Lnu, Madhusudhan", "room": "SDB 1- 4F- B WING- ODC 5"},
+  {"type": "intern", "cohort": "INTQEA26JP001", "status": "In-Training", "vertical": "", "headcount": 7, "exit": 0, "hold": 0, "inTraining": 7, "track": "Japanese", "startDate": "2026-04-29", "coach": "D P, Ajiesya", "qualifier": "", "qualifier2": "", "qualifier3": "", "interim": "", "final": "", "release": "2026-07-22", "trainerName": "Priya", "mode": "In-person", "mentorName": "", "bhName": "Gerard, Joseph", "room": "SDB 1- 7F- B WING- ODC 5"},
+  {"type": "intern", "cohort": "INTQEA26JP002", "status": "In-Training", "vertical": "", "headcount": 9, "exit": 0, "hold": 0, "inTraining": 9, "track": "Japanese", "startDate": "2026-04-29", "coach": "D P, Ajiesya", "qualifier": "", "qualifier2": "", "qualifier3": "", "interim": "", "final": "", "release": "2026-07-22", "trainerName": "Priya", "mode": "In-person", "mentorName": "", "bhName": "Gerard, Joseph", "room": "SDB 1- 7F- B WING- ODC 6"},
+  {"type": "intern", "cohort": "INTQEA26QPY001", "status": "In-Training", "vertical": "", "headcount": 29, "exit": 0, "hold": 0, "inTraining": 0, "track": "QEA_Python Test Automation using GenAI and ETL Assurance", "startDate": "2026-04-30", "coach": "Selvin", "qualifier": "", "qualifier2": "", "qualifier3": "", "interim": "2026-06-10", "final": "2026-07-21", "release": "2026-07-23", "trainerName": "Ahmed, Nazir", "mode": "In-person", "mentorName": "", "bhName": "Gerard, Joseph", "room": ""},
+  {"type": "intern", "cohort": "QEA26QEPT020", "status": "In-Training", "vertical": "", "headcount": 25, "exit": 0, "hold": 0, "inTraining": 25, "track": "Quality Engineer with Selenium Automation", "startDate": "2026-04-30", "coach": "Selvin", "qualifier": "", "qualifier2": "", "qualifier3": "", "interim": "2026-07-01", "final": "2026-07-28", "release": "2026-07-30", "trainerName": "Narasimman, Lakshmi", "mode": "In-person", "mentorName": "", "bhName": "Lnu, Madhusudhan", "room": ""}
+];
+
+RAW_DATA=PRELOADED; FILTERED_DATA=[...RAW_DATA];
+
+// ── CLOCK ──
+function updateClock(){const n=new Date();document.getElementById('liveClock').textContent='📅 '+n.toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short',year:'numeric'})+'  '+n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
+setInterval(updateClock,1000);updateClock();
+
+// ── TOAST ──
+function showToast(msg,dur=3000){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+
+// ── PANEL ──
+function switchPanel(name,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  if(name==='milestones') renderMilestones();
+  if(name==='batches') renderBatchTable();
+  if(name==='attendance') renderAttTable();
+}
+
+// ── MODAL ──
+function openModal(type){
+  const m=document.getElementById('modalContent');
+  if(type==='main'){
+    m.innerHTML=`<h2>📤 Upload Training Data</h2><p>Upload your QEA HIPO batch Excel sheet. All dashboards will auto-refresh.</p>
+    <div class="drop-zone" onclick="document.getElementById('fileInput').click()" ondrop="handleDropMain(event)" ondragover="e=>e.preventDefault()" ondragenter="this.classList.add('drag')" ondragleave="this.classList.remove('drag')">
+      <div class="dz-icon">📁</div><p><strong style="color:var(--accent)">Click or drag & drop</strong></p><p style="font-size:11px;margin-top:4px;">Format: QEA_Base_File_HIPO_batch.xlsx</p>
+    </div>
+    <div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancel</button></div>`;
+  } else {
+    m.innerHTML=`<h2>📤 Upload Attendance Template</h2><p>Upload the completed attendance template. Candidate records will link automatically to the register.</p>
+    <div class="drop-zone" onclick="document.getElementById('attFileInput').click()" ondrop="handleDropAtt(event)" ondragover="e=>e.preventDefault()" ondragenter="this.classList.add('drag')" ondragleave="this.classList.remove('drag')">
+      <div class="dz-icon">📋</div><p><strong style="color:var(--accent)">Click or drag & drop</strong></p><p style="font-size:11px;margin-top:4px;">Use the downloaded template format</p>
+    </div>
+    <div class="modal-btns"><button class="btn-cancel" onclick="closeModal()">Cancel</button></div>`;
+  }
+  document.getElementById('uploadModal').classList.add('open');
+}
+function closeModal(){document.getElementById('uploadModal').classList.remove('open');}
+
+// ── FILE HANDLERS ──
+function handleDropMain(e){e.preventDefault();e.currentTarget.classList.remove('drag');const f=e.dataTransfer.files[0];if(f){processMainFile(f);closeModal();}}
+function handleDropAtt(e){e.preventDefault();e.currentTarget.classList.remove('drag');const f=e.dataTransfer.files[0];if(f){processAttFile(f);closeModal();}}
+function handleMainUpload(e){const f=e.target.files[0];if(f)processMainFile(f);}
+function handleAttUpload(e){const f=e.target.files[0];if(f){processAttFile(f);closeModal();}}
+
+function processMainFile(file){
+  showToast('⚙️ Processing '+file.name+'...');
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      const parsed=parseExcelRows(rows);
+      if(parsed.length>0){RAW_DATA=parsed;FILTERED_DATA=[...RAW_DATA];populateVerticalFilter();refreshDashboard();showToast('✅ Loaded '+parsed.length+' batches!');}
+      else showToast('⚠️ Could not parse file — using pre-loaded data');
+    }catch(err){showToast('❌ Error reading file');}
+  };
+  r.readAsBinaryString(file);
+}
+
+function parseExcelRows(rows){
+  // Excel col map (1-based col → 0-based index):
+  // [1]=SL [2]=type [3]=cohort [4]=status [5]=SL2 [6]=headcount [7]=exit [8]=hold [9]=inTraining
+  // [10]=LP Name [11]=track [12]=DOJ [13]=startDate [14]=coach
+  // [15]=qualifier [16]=qualifier2 [17]=qualifier3 [18]=interim [19]=final [20]=release
+  // [21]=TrainerID [22]=trainerName [23]=mode [24]=MentorID [25]=mentorName
+  // [26]=vertical [27]=BHID [28]=bhName [29]=room
+  const result=[];
+  let hRow=0;
+  for(let i=0;i<rows.length;i++){if(rows[i]&&String(rows[i][0]).includes('SL')){hRow=i;break;}}
+  const fd=v=>{
+    if(!v) return '';
+    if(v instanceof Date) return v.toISOString().split('T')[0];
+    const s=String(v).trim();
+    // DD/MM/YYYY
+    let m=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if(m) return `${m[3]}-${m[2]}-${m[1]}`;
+    // DD-MM-YYYY
+    m=s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if(m) return `${m[3]}-${m[2]}-${m[1]}`;
+    // YYYY-MM-DD already
+    if(s.match(/^\d{4}-\d{2}-\d{2}/)) return s.split('T')[0];
+    // "21st May 2026" style
+    const months={jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+    m=s.match(/(\d+)\w*\s+(\w+)\s+(\d{4})/i);
+    if(m){const mo=months[m[2].toLowerCase().slice(0,3)];if(mo) return `${m[3]}-${mo}-${String(m[1]).padStart(2,'0')}`;}
+    return '';
+  };
+  const cl=v=>{if(!v) return '';const s=String(v).trim().replace(/\xa0/g,'').replace(/\\/g,'/');return ['na','n/a','yet to update','yet to generate','yet to decide','id yet to generate','multiple trainers-yet to generate'].includes(s.toLowerCase())?s.includes('Multiple')?s:'':s;};
+  for(let i=hRow+1;i<rows.length;i++){
+    const r=rows[i];
+    if(!r||!r[2]) continue;
+    result.push({
+      type:      cl(r[1]),
+      cohort:    cl(r[2]),
+      status:    cl(r[3]),
+      vertical:  cl(r[25]),   // col 26
+      headcount: parseInt(r[5])||0,
+      exit:      parseInt(r[6])||0,
+      hold:      parseInt(r[7])||0,
+      inTraining:parseInt(r[8])||0,
+      track:     cl(r[10]),   // col 11
+      startDate: fd(r[12]),   // col 13
+      coach:     cl(r[13]),   // col 14
+      qualifier:  fd(r[14]),  // col 15
+      qualifier2: fd(r[15]),  // col 16
+      qualifier3: fd(r[16]),  // col 17
+      interim:    fd(r[17]),  // col 18
+      final:      fd(r[18]),  // col 19
+      release:    fd(r[19]),  // col 20
+      trainerName:cl(r[21]),  // col 22
+      mode:       cl(r[22]),  // col 23
+      mentorName: cl(r[24]),  // col 25
+      bhName:     cl(r[27]),  // col 28
+      room:       cl(r[28]),  // col 29
+    });
+  }
+  return result;
+}
+
+function processAttFile(file){
+  showToast('⚙️ Processing attendance...');
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary',cellDates:true});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1});
+      let hRow=0;
+      for(let i=0;i<rows.length;i++){if(rows[i]&&(String(rows[i][0]).toLowerCase().includes('emp')||String(rows[i][0]).toLowerCase().includes('id'))){hRow=i;break;}}
+      let added=0;
+      for(let i=hRow+1;i<rows.length;i++){
+        const row=rows[i];
+        if(!row||!row[0]) continue;
+        const empId=String(row[0]).trim();
+        const name=String(row[1]||'').trim();
+        const cohort=String(row[2]||'').trim();
+        if(!empId) continue;
+        // Find track from batch data if cohort matches
+        const batch=RAW_DATA.find(b=>b.cohort===cohort);
+        const track=batch?batch.track:'';
+        if(!ATTENDANCE[empId]){ATTENDANCE[empId]={name,cohort,track,dates:{}}; added++;}
+        else{if(name)ATTENDANCE[empId].name=name;if(cohort)ATTENDANCE[empId].cohort=cohort;if(track)ATTENDANCE[empId].track=track;}
+      }
+      // Ensure all existing ATT_DATES are applied as P for new candidates
+      Object.values(ATTENDANCE).forEach(emp=>{ATT_DATES.forEach(d=>{if(emp.dates[d]===undefined)emp.dates[d]='P';});});
+      populateAttFilters();
+      renderAttTable();
+      showToast('✅ '+added+' candidates added — total: '+Object.keys(ATTENDANCE).length);
+    }catch(err){showToast('❌ Error: '+err.message);}
+  };
+  r.readAsBinaryString(file);
+}
+
+// ── DASHBOARD TEMPLATE DOWNLOAD (matches Tool_kit_-_Dashboard_template.xlsx exactly) ──
+function downloadDashboardTemplate(){
+  const wb=XLSX.utils.book_new();
+  // Exact 29 columns matching the template
+  const headers=[
+    'SL','type ','Cohort Code','Current Status ','SL','Head Count','Exit','Hold','In-training',
+    'LP Name','Track name','DOJ ','Start Date','Coach ','Delta/ Qualifiers',
+    'Qualifier 2nd attempt','Qualifier 3rd attempt','Interim','Final','Release Date ',
+    'Trainer ID','Trainer Name','Mode of training','Mentor ID','Mentor Name',
+    'Vertical2','BH ID','BH Name','Training room no.'
+  ];
+  // Build data rows from current RAW_DATA
+  const dataRows=RAW_DATA.map((r,i)=>[
+    i+1,                    // SL
+    r.type,                 // type
+    r.cohort,               // Cohort Code
+    r.status,               // Current Status
+    'QE&A',                 // SL (internal)
+    r.headcount,            // Head Count
+    r.exit,                 // Exit
+    r.hold,                 // Hold
+    r.inTraining,           // In-training
+    r.track,                // LP Name (same)
+    r.track,                // Track name
+    '',                     // DOJ
+    r.startDate,            // Start Date
+    r.coach,                // Coach
+    r.qualifier,            // Delta/Qualifiers
+    r.qualifier2,           // Qualifier 2nd
+    r.qualifier3,           // Qualifier 3rd
+    r.interim,              // Interim
+    r.final,                // Final
+    r.release,              // Release Date
+    '',                     // Trainer ID
+    r.trainerName,          // Trainer Name
+    r.mode,                 // Mode of training
+    '',                     // Mentor ID
+    r.mentorName,           // Mentor Name
+    r.vertical,             // Vertical2
+    '',                     // BH ID
+    r.bhName,               // BH Name
+    r.room                  // Training room no.
+  ]);
+  const ws=XLSX.utils.aoa_to_sheet([headers,...dataRows]);
+  // Column widths matching template
+  ws['!cols']=[
+    {wch:5},{wch:8},{wch:25},{wch:20},{wch:6},{wch:10},{wch:6},{wch:6},{wch:10},
+    {wch:18},{wch:36},{wch:14},{wch:12},{wch:18},{wch:14},
+    {wch:16},{wch:16},{wch:12},{wch:12},{wch:14},
+    {wch:12},{wch:22},{wch:15},{wch:12},{wch:22},
+    {wch:14},{wch:10},{wch:18},{wch:28}
+  ];
+  // Row height for header
+  ws['!rows']=[{hpt:36}];
+  XLSX.utils.book_append_sheet(wb,ws,'Intraining Base');
+  XLSX.writeFile(wb,'QEA_HIPO_Batch_Data.xlsx');
+  showToast('✅ Template downloaded with '+RAW_DATA.length+' batch records!');
+}
+
+// ── ATTENDANCE TEMPLATE DOWNLOAD (matches Tool_kit_-_Dashboard_template.xlsx exactly) ──
+function downloadAttTemplate(){
+  const wb=XLSX.utils.book_new();
+  // Only 3 columns — user fills in Cohort Code manually
+  const headers=['Employee ID','Employee Name','Cohort Code'];
+  const rows=[headers];
+  // Add a few blank sample rows for guidance
+  for(let i=0;i<10;i++){rows.push(['','','']);}
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:16},{wch:26},{wch:24}];
+  // Style note row
+  XLSX.utils.book_append_sheet(wb,ws,'Candidate List');
+  const info=[
+    ['QEA Attendance Template — Instructions'],[''],
+    ['Column','Description'],
+    ['Employee ID','Unique employee ID for each candidate (mandatory)'],
+    ['Employee Name','Full name of the candidate'],
+    ['Cohort Code','Enter the cohort code (e.g. INTQEA26CRM001)'],
+    [''],
+    ['After uploading this file, go to the Attendance tab to mark AB / EXAM for each date.'],
+    ['Empty attendance cells will automatically default to P (Present).'],
+  ];
+  const wsI=XLSX.utils.aoa_to_sheet(info);
+  wsI['!cols']=[{wch:18},{wch:60}];
+  XLSX.utils.book_append_sheet(wb,wsI,'Instructions');
+  XLSX.writeFile(wb,'QEA_Attendance_Template.xlsx');
+  showToast('✅ Template downloaded!');
+}
+
+function addTodayToAtt(){
+  if(Object.keys(ATTENDANCE).length===0){showToast('⚠️ Upload candidate list first');return;}
+  if(!ATT_DATES.includes(TODAY_STR)){ATT_DATES.push(TODAY_STR);ATT_DATES.sort();}
+  Object.values(ATTENDANCE).forEach(emp=>{if(emp.dates[TODAY_STR]===undefined)emp.dates[TODAY_STR]='P';});
+  populateAttFilters();
+  renderAttTable();
+  showToast('✅ Today ('+fmtDateShort(TODAY_STR)+') added to attendance');
+}
+
+// ── POPULATE FILTERS ──
+function populateAttFilters(){
+  const cohorts=[...new Set(Object.values(ATTENDANCE).map(e=>e.cohort).filter(Boolean))].sort();
+  const sel=document.getElementById('att-cohort-filter');
+  sel.innerHTML='<option value="">All Cohorts</option>';
+  cohorts.forEach(c=>sel.innerHTML+=`<option value="${c}">${c}</option>`);
+  const ds=document.getElementById('att-date-filter');
+  ds.innerHTML='<option value="">All Dates (Last 14)</option>';
+  // Only show today and past dates — no future dates
+  ATT_DATES.filter(d=>d<=TODAY_STR).forEach(d=>{
+    const isTod=d===TODAY_STR;
+    ds.innerHTML+=`<option value="${d}">${fmtDateShort(d)} (${getDayName(d)})${isTod?' ← Today':''}</option>`;
+  });
+}
+
+// ── RENDER ATTENDANCE TABLE ──
+function renderAttTable(){
+  // Ensure today is always in ATT_DATES if any candidates exist
+  if(Object.keys(ATTENDANCE).length>0&&!ATT_DATES.includes(TODAY_STR)){
+    ATT_DATES.push(TODAY_STR);ATT_DATES.sort();
+    Object.values(ATTENDANCE).forEach(emp=>{if(emp.dates[TODAY_STR]===undefined)emp.dates[TODAY_STR]='P';});
+    // Refresh date filter dropdown
+    populateAttFilters();
+  }
+  const search=(document.getElementById('att-search')?.value||'').toLowerCase();
+  const cohortF=document.getElementById('att-cohort-filter')?.value||'';
+  const dateF=document.getElementById('att-date-filter')?.value||'';
+  const emps=Object.entries(ATTENDANCE).filter(([id,e])=>{
+    if(cohortF&&e.cohort!==cohortF) return false;
+    if(search&&!id.toLowerCase().includes(search)&&!e.name.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  // Only show today + past dates (exclude future)
+  const pastAndToday=ATT_DATES.filter(d=>d<=TODAY_STR);
+  const showDates=dateF?[dateF]:(pastAndToday.length>0?pastAndToday.slice(-14):[]);
+  if(emps.length===0){
+    document.getElementById('att-table-wrap').innerHTML=`<div class="empty-state"><div class="emo">📋</div><p>${Object.keys(ATTENDANCE).length===0?'Download the template above, fill in Employee ID, Name, and Cohort Code, then upload to start tracking attendance.':'No candidates match the current filter.'}</p></div>`;
+    updateAttKPIs([],showDates);
+    return;
+  }
+  updateAttKPIs(emps.map(([,e])=>e),showDates.length?showDates:[TODAY_STR]);
+  const html=`<table>
+    <thead><tr>
+      <th>Emp ID</th><th>Name</th><th>Cohort</th><th>Track</th>
+      ${showDates.map(d=>`<th style="text-align:center;min-width:70px;${d===TODAY_STR?'background:#ADD8E6;color:#0d2d3f;':''}">
+        ${d===TODAY_STR?'<span style="font-size:9px;background:#1a6fa8;color:#fff;padding:1px 5px;border-radius:3px;display:block;margin-bottom:2px;">TODAY</span>':''}
+        ${fmtDateShort(d)}<br><span style="font-size:9px;color:var(--muted);">${getDayName(d)}</span></th>`).join('')}
+      <th style="text-align:center;">P%</th>
+    </tr></thead>
+    <tbody>${emps.map(([id,emp])=>{
+      const pDates=showDates.length>0?showDates:[TODAY_STR];
+      const pCount=pDates.filter(d=>(emp.dates[d]||'P')==='P').length;
+      const pct=pDates.length>0?Math.round(pCount/pDates.length*100):100;
+      const pctColor=pct>=90?'var(--green)':pct>=75?'var(--accent3)':'var(--red)';
+      return `<tr>
+        <td style="font-family:monospace;font-size:11px;color:var(--accent);">${id}</td>
+        <td style="font-weight:500;white-space:nowrap;font-size:12px;">${emp.name||'—'}</td>
+        <td><span class="cohort-code">${emp.cohort||'—'}</span></td>
+        <td style="font-size:11px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${emp.track||'—'}</td>
+        ${showDates.map(d=>{
+          const val=emp.dates[d]||'P';
+          const cl=val==='P'?'P':val==='AB'?'AB':'EXAM';
+          const todayStyle=d===TODAY_STR?'background:#e8f4f8;':'';
+          return `<td style="text-align:center;padding:6px 4px;${todayStyle}">
+            <select class="att-input ${cl}" onchange="updateAtt('${id}','${d}',this.value,this)">
+              <option value="P" ${val==='P'?'selected':''}>P</option>
+              <option value="AB" ${val==='AB'?'selected':''}>AB</option>
+              <option value="EXAM" ${val==='EXAM'?'selected':''}>EXAM</option>
+            </select></td>`;
+        }).join('')}
+        <td style="text-align:center;font-weight:700;font-size:12px;color:${pctColor};">${pct}%</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+  document.getElementById('att-table-wrap').innerHTML=html;
+}
+
+function updateAtt(empId,date,val,selectEl){
+  if(!ATTENDANCE[empId]) return;
+  ATTENDANCE[empId].dates[date]=val;
+  if(selectEl){
+    selectEl.className='att-input '+val;
+  }
+}
+
+function updateAttKPIs(emps,dates){
+  const td=dates.includes(TODAY_STR)?TODAY_STR:dates[dates.length-1]||TODAY_STR;
+  let p=0,ab=0,ex=0;
+  emps.forEach(e=>{const v=e.dates[td]||'P';if(v==='P')p++;else if(v==='AB')ab++;else if(v==='EXAM')ex++;});
+  const total=emps.length;
+  document.getElementById('att-kpi-present').textContent=p;
+  document.getElementById('att-kpi-absent').textContent=ab;
+  document.getElementById('att-kpi-exam').textContent=ex;
+  document.getElementById('att-kpi-total').textContent=total;
+  document.getElementById('att-kpi-pct').textContent=(total>0?Math.round(p/total*100):0)+'%';
+}
+
+// ── DOWNLOAD REPORTS ──
+function downloadAttReport(type){
+  if(Object.keys(ATTENDANCE).length===0){showToast('⚠️ No attendance data to export — upload a template first');return;}
+  const wb=XLSX.utils.book_new();
+  if(type==='daily'){
+    ATT_DATES.forEach(date=>{
+      const rows=[['Employee ID','Name','Cohort','Track','Status (P/AB/EXAM)']];
+      Object.entries(ATTENDANCE).forEach(([id,e])=>rows.push([id,e.name,e.cohort,e.track,e.dates[date]||'P']));
+      const ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:14},{wch:24},{wch:22},{wch:32},{wch:14}];
+      XLSX.utils.book_append_sheet(wb,ws,date.replace(/-/g,'').slice(2));
+    });
+    showToast('⬇ Downloading daily report...');
+  } else if(type==='cohort'){
+    const cohorts=[...new Set(Object.values(ATTENDANCE).map(e=>e.cohort).filter(Boolean))];
+    cohorts.forEach(cohort=>{
+      const emps=Object.entries(ATTENDANCE).filter(([,e])=>e.cohort===cohort);
+      const headers=['Employee ID','Candidate Name','Cohort','Track',...ATT_DATES,'P Count','AB Count','EXAM Count','Att %'];
+      const rows=[headers,...emps.map(([id,e])=>{
+        const p=ATT_DATES.filter(d=>(e.dates[d]||'P')==='P').length;
+        const ab=ATT_DATES.filter(d=>e.dates[d]==='AB').length;
+        const ex=ATT_DATES.filter(d=>e.dates[d]==='EXAM').length;
+        return [id,e.name,e.cohort,e.track,...ATT_DATES.map(d=>e.dates[d]||'P'),p,ab,ex,(ATT_DATES.length?Math.round(p/ATT_DATES.length*100):100)+'%'];
+      })];
+      const ws=XLSX.utils.aoa_to_sheet(rows);
+      ws['!cols']=[{wch:14},{wch:24},{wch:22},{wch:32},...ATT_DATES.map(()=>({wch:12})),{wch:8},{wch:8},{wch:10},{wch:8}];
+      XLSX.utils.book_append_sheet(wb,ws,(cohort||'Unknown').slice(-12));
+    });
+    showToast('⬇ Downloading cohort report...');
+  } else {
+    const headers=['Employee ID','Candidate Name','Cohort','Track',...ATT_DATES,'Total P','Total AB','Total EXAM','Overall Att %'];
+    const rows=[headers,...Object.entries(ATTENDANCE).map(([id,e])=>{
+      const p=ATT_DATES.filter(d=>(e.dates[d]||'P')==='P').length;
+      const ab=ATT_DATES.filter(d=>e.dates[d]==='AB').length;
+      const ex=ATT_DATES.filter(d=>e.dates[d]==='EXAM').length;
+      return [id,e.name,e.cohort,e.track,...ATT_DATES.map(d=>e.dates[d]||'P'),p,ab,ex,(ATT_DATES.length?Math.round(p/ATT_DATES.length*100):100)+'%'];
+    })];
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:14},{wch:24},{wch:22},{wch:32},...ATT_DATES.map(()=>({wch:12})),{wch:8},{wch:8},{wch:10},{wch:12}];
+    XLSX.utils.book_append_sheet(wb,ws,'Master Attendance');
+    showToast('⬇ Downloading master report...');
+  }
+  XLSX.writeFile(wb,'QEA_Attendance_'+type+'_report_'+TODAY_STR+'.xlsx');
+}
+
+function fmtDateShort(d){try{return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});}catch(e){return d;}}
+function getDayName(d){try{return new Date(d).toLocaleDateString('en',{weekday:'short'});}catch(e){return '';}}
+
+// ── KPI DRAWER ──
+function showKpiDrawer(key){
+  const fd=s=>{if(!s||s==='undefined')return '—';try{return new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});}catch(e){return s;}};
+  const d=document.getElementById('kpiDrawer');
+  let rows=[],heading='',desc='';
+  if(key==='total'){heading='👥 In-Training Candidates';desc='Sum of In-Training column from all batches';
+    rows=FILTERED_DATA.map(r=>[r.cohort,r.type,r.track,r.inTraining,r.status]);}
+  else if(key==='grad'){heading='🎓 Graduated Batches';desc='All batches with Graduated status';
+    rows=FILTERED_DATA.filter(r=>r.status==='Graduated').map(r=>[r.cohort,r.type,r.track,r.headcount,fd(r.release)]);}
+  else if(key==='intr'){heading='📚 Active Training Batches';desc='Currently In-Training batches (excludes Remedial)';
+    rows=FILTERED_DATA.filter(r=>r.status.includes('In-Training')&&!r.status.includes('Remedial')).map(r=>[r.cohort,r.type,r.track,r.inTraining,fd(r.final)]);}
+  else if(key==='rem'){heading='⚠️ Remedial Batches';desc='Batches in remedial training';
+    rows=FILTERED_DATA.filter(r=>r.status.includes('Remedial')).map(r=>[r.cohort,r.type,r.track,r.inTraining,r.coach]);}
+  else if(key==='exit'){heading='🚪 Exit Count by Batch';desc='Batches with at least one exit';
+    rows=FILTERED_DATA.filter(r=>r.exit>0).map(r=>[r.cohort,r.type,r.track,r.headcount,r.exit]);}
+  else if(key==='partial'){heading='📊 Partially Graduated Batches';desc='Batches with partial graduation status';
+    rows=FILTERED_DATA.filter(r=>r.status.includes('Partial')).map(r=>[r.cohort,r.type,r.track,r.headcount,r.inTraining]);}
+  else if(key==='trainers'){heading='👨‍🏫 All Trainers';desc='Trainers and their batch assignments';
+    const tm={};FILTERED_DATA.forEach(r=>{if(r.trainerName&&r.trainerName!=='undefined'){if(!tm[r.trainerName])tm[r.trainerName]={b:[],hc:0};tm[r.trainerName].b.push(r.cohort);tm[r.trainerName].hc+=r.headcount;}});
+    rows=Object.entries(tm).sort((a,b)=>b[1].hc-a[1].hc).map(([n,d])=>[n,d.b.length,d.hc]);}
+  else if(key==='rooms'){heading='🏫 Training Rooms';desc='Rooms used across all batches';
+    const rm=[...new Set(FILTERED_DATA.map(r=>r.room).filter(r=>r&&r!=='undefined'))];
+    document.getElementById('drawer-title').textContent=heading;
+    document.getElementById('drawer-sub').textContent=desc;
+    document.getElementById('drawer-content').innerHTML=`<div style="display:flex;flex-direction:column;gap:7px;">${rm.map(r=>`<div style="background:var(--surface2);padding:9px 12px;border-radius:7px;font-size:12px;">🏢 ${r}</div>`).join('')}</div>`;
+    d.classList.add('open');return;
+  }
+  document.getElementById('drawer-title').textContent=heading;
+  document.getElementById('drawer-sub').textContent=desc;
+  const headers=key==='trainers'?['Trainer Name','Batches','Headcount']:key==='rooms'?['Room']:['Cohort','Type','Track','Count/HC','Extra'];
+  document.getElementById('drawer-content').innerHTML=mkDrawerTable(headers,rows,key==='trainers');
+  d.classList.add('open');
+}
+function closeDrawer(){document.getElementById('kpiDrawer').classList.remove('open');}
+function mkDrawerTable(headers,rows,noCodeStyle=false){
+  if(!rows.length)return '<div class="empty-state"><div class="emo">🔍</div><p>No matching data</p></div>';
+  return `<div style="overflow-x:auto;"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td style="font-size:12px;">${(i===0&&!noCodeStyle)?`<span class="cohort-code">${c}</span>`:c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+
+// ── FILTERS ──
+function populateVerticalFilter(){
+  const v=[...new Set(RAW_DATA.map(d=>d.vertical).filter(Boolean))].sort();
+  const sel=document.getElementById('f-vertical');
+  sel.innerHTML='<option value="">All Verticals</option>';
+  v.forEach(x=>sel.innerHTML+=`<option value="${x}">${x}</option>`);
+}
+function applyFilters(){
+  const type=document.getElementById('f-type').value;
+  const status=document.getElementById('f-status').value;
+  const vertical=document.getElementById('f-vertical').value;
+  const mode=document.getElementById('f-mode').value;
+  FILTERED_DATA=RAW_DATA.filter(d=>{
+    if(type&&!d.type.toLowerCase().includes(type.toLowerCase())) return false;
+    if(status&&!d.status.includes(status)) return false;
+    if(vertical&&d.vertical!==vertical) return false;
+    if(mode&&!d.mode.toLowerCase().includes(mode.toLowerCase())) return false;
+    return true;
+  });
+  refreshDashboard();
+}
+
+// ── DASHBOARD ──
+function refreshDashboard(){
+  const d=FILTERED_DATA;
+  const totalInTr=d.reduce((s,r)=>s+r.inTraining,0);
+  const grad=d.filter(r=>r.status==='Graduated').reduce((s,r)=>s+r.headcount,0);
+  const active=d.filter(r=>r.status.includes('In-Training')&&!r.status.includes('Remedial')).length;
+  const rem=d.filter(r=>r.status.includes('Remedial')).reduce((s,r)=>s+r.inTraining,0);
+  const exits=d.reduce((s,r)=>s+r.exit,0);
+  const partial=d.filter(r=>r.status.includes('Partial')).reduce((s,r)=>s+r.headcount,0);
+  const trainers=[...new Set(d.map(r=>r.trainerName).filter(n=>n&&n!=='undefined'))].length;
+  const rooms=[...new Set(d.map(r=>r.room).filter(r=>r&&r!=='undefined'))].length;
+  document.getElementById('kpi-total').textContent=totalInTr;
+  document.getElementById('kpi-grad').textContent=grad;
+  document.getElementById('kpi-intr').textContent=active;
+  document.getElementById('kpi-rem').textContent=rem;
+  document.getElementById('kpi-exit').textContent=exits;
+  document.getElementById('kpi-partial').textContent=partial;
+  document.getElementById('kpi-trainers').textContent=trainers;
+  document.getElementById('kpi-rooms').textContent=rooms;
+  renderStatusDonut(d);renderTypeDonut(d);renderModeDonut(d);
+  renderTrackBars(d);renderVerticalBars(d);
+  renderMilestoneBoard(d);
+}
+
+// ── DONUTS ──
+function makePaths(segs,cx,cy,r,inner,C){
+  if(!C)C=['#1a6fa8','#f59e0b','#e63946','#2a9d8f','#e76f51','#457b9d','#8338ec','#06d6a0'];
+  const tot=segs.reduce((s,x)=>s+x.val,0);if(!tot)return '';
+  let st=0,out='';
+  segs.forEach((s,i)=>{
+    const a=s.val/tot*2*Math.PI,x1=cx+r*Math.sin(st),y1=cy-r*Math.cos(st);
+    const x2=cx+r*Math.sin(st+a),y2=cy-r*Math.cos(st+a);
+    const x3=cx+inner*Math.sin(st+a),y3=cy-inner*Math.cos(st+a);
+    const x4=cx+inner*Math.sin(st),y4=cy-inner*Math.cos(st);
+    out+=`<path d="M${x1},${y1} A${r},${r},0,${s.val/tot>.5?1:0},1,${x2},${y2} L${x3},${y3} A${inner},${inner},0,${s.val/tot>.5?1:0},0,${x4},${y4} Z" fill="${C[i%C.length]}" opacity="0.9"/>`;
+    st+=a;
+  });
+  return out;
+}
+function donutHtml(segs,label,val){
+  const C=['#1a6fa8','#f59e0b','#e63946','#2a9d8f','#e76f51','#457b9d','#8338ec','#06d6a0'];
+  const lgd=segs.map((s,i)=>`<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);"><span style="width:6px;height:6px;border-radius:50%;background:${C[i%C.length]};display:inline-block;flex-shrink:0;"></span>${s.label}: <strong style="color:var(--text)">${s.val}</strong></div>`).join('');
+  return `<svg viewBox="0 0 200 110" style="width:100%;max-height:110px;">${makePaths(segs,100,55,46,28,C)}<text x="100" y="51" text-anchor="middle" font-size="14" font-weight="800" fill="#0d2d3f" font-family="Calibri">${val}</text><text x="100" y="64" text-anchor="middle" font-size="8" fill="#4a7a92">${label}</text></svg><div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:5px;">${lgd}</div>`;
+}
+function renderStatusDonut(d){
+  const c={};d.forEach(r=>{const s=r.status.replace('In-Training Remedial','Remedial');c[s]=(c[s]||0)+r.headcount;});
+  document.getElementById('status-donut').innerHTML=donutHtml(Object.entries(c).map(([k,v])=>({label:k,val:v})),'Total',Object.values(c).reduce((a,b)=>a+b,0));
+}
+function renderTypeDonut(d){
+  const intern=d.filter(r=>r.type.toLowerCase()==='intern').reduce((s,r)=>s+r.headcount,0);
+  const fte=d.filter(r=>r.type.toLowerCase()==='fte').reduce((s,r)=>s+r.headcount,0);
+  document.getElementById('type-donut').innerHTML=donutHtml([{label:'Intern',val:intern},{label:'FTE',val:fte}],'HC',intern+fte);
+}
+function renderModeDonut(d){
+  const c={Virtual:0,'In-Person':0};
+  d.forEach(r=>{const m=r.mode.toLowerCase().includes('virtual')?'Virtual':'In-Person';c[m]+=r.headcount;});
+  document.getElementById('mode-donut').innerHTML=donutHtml([{label:'Virtual',val:c.Virtual},{label:'In-Person',val:c['In-Person']}],'Mode',c.Virtual+c['In-Person']);
+}
+function renderTrackBars(d){
+  const c={};d.forEach(r=>{const t=(r.track||'Unknown').substring(0,28);c[t]=(c[t]||0)+r.headcount;});
+  const s=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,8);const mx=s[0]?.[1]||1;
+  const C=['#00d4aa','#6c63ff','#ffd166','#3fb950','#ff6b6b','#58a6ff','#f0883e','#a78bfa'];
+  document.getElementById('track-bars').innerHTML=s.map(([k,v],i)=>`<div class="bar-row"><div class="bar-label">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${(v/mx*100).toFixed(0)}%;background:${C[i%C.length]};">${v>10?v:''}</div></div><div class="bar-count">${v}</div></div>`).join('');
+}
+function renderVerticalBars(d){
+  const c={};d.forEach(r=>{const v=r.vertical||'Other';if(v&&v!=='undefined')c[v]=(c[v]||0)+r.headcount;});
+  const s=Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,8);const mx=s[0]?.[1]||1;
+  const C=['#6c63ff','#00d4aa','#ffd166','#3fb950','#ff6b6b','#58a6ff','#f0883e','#a78bfa'];
+  document.getElementById('vertical-bars').innerHTML=s.map(([k,v],i)=>`<div class="bar-row"><div class="bar-label">${k}</div><div class="bar-track"><div class="bar-fill" style="width:${(v/mx*100).toFixed(0)}%;background:${C[i%C.length]};">${v>5?v:''}</div></div><div class="bar-count">${v}</div></div>`).join('');
+}
+
+// ── MILESTONE BOARD ──
+function renderMilestoneBoard(d){
+  const items=[];
+  d.forEach(row=>{
+    [['qualifier','Q1 Qualifier'],['qualifier2','Q2 Qualifier'],['qualifier3','Q3 Qualifier'],['interim','Interim Assessment'],['final','Final Assessment'],['release','Release Date']].forEach(([k,lbl])=>{
+      if(!row[k]) return;
+      let dt;try{dt=new Date(row[k]);}catch(e){return;}if(isNaN(dt))return;
+      dt.setHours(0,0,0,0);
+      const diff=Math.floor((dt-TODAY)/86400000);
+      if(diff>=-7&&diff<=30){
+        const st=diff<0?'overdue':diff<=7?'current':'upcoming';
+        items.push({cohort:row.cohort,type:lbl,date:row[k],dt,diff,status:st});
+      }
+    });
+  });
+  items.sort((a,b)=>a.dt-b.dt);
+  if(!items.length){document.getElementById('milestone-board').innerHTML='<div style="text-align:center;padding:22px;color:var(--muted);font-size:12px;">🎉 No milestones in the next 30 days</div>';return;}
+  const fd=d=>{try{return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});}catch(e){return d;}};
+  document.getElementById('milestone-board').innerHTML=items.map(item=>`<div class="milestone-item ${item.status}"><div class="milestone-dot ${item.status}"></div><div class="milestone-info"><div class="milestone-batch">${item.cohort}</div><div class="milestone-type">${item.type}</div></div><div style="text-align:right;"><div class="milestone-date ${item.status}" style="font-size:11px;font-weight:600;">${fd(item.date)}</div><div style="font-size:9px;color:var(--muted);">${item.diff===0?'TODAY':item.diff<0?`${Math.abs(item.diff)}d overdue`:item.diff===1?'Tomorrow':`In ${item.diff}d`}</div></div></div>`).join('');
+}
+
+// ── BATCH TABLE ──
+function renderBatchTable(){
+  const type=document.getElementById('bf-type')?.value||'';
+  const status=document.getElementById('bf-status')?.value||'';
+  const search=(document.getElementById('bf-search')?.value||'').toLowerCase();
+  const rows=RAW_DATA.filter(d=>{
+    if(type&&!d.type.toLowerCase().includes(type.toLowerCase())) return false;
+    if(status&&!d.status.includes(status)) return false;
+    if(search&&!d.cohort.toLowerCase().includes(search)&&!(d.track||'').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  if(!rows.length){document.getElementById('batch-table-wrap').innerHTML='<div class="empty-state"><div class="emo">🔍</div><p>No batches match</p></div>';return;}
+  const fd=d=>{if(!d||d==='undefined')return '—';try{return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});}catch(e){return d;}};
+  document.getElementById('batch-table-wrap').innerHTML=`<table>
+    <thead><tr><th>Cohort Code</th><th>Type</th><th>Status</th><th>Track</th><th>HC</th><th>Active</th><th>Exit</th><th>Start</th><th>Q1</th><th>Interim</th><th>Final</th><th>Release</th><th>Trainer</th><th>Coach</th><th>Mode</th></tr></thead>
+    <tbody>${rows.map(r=>{
+      const sc=r.status.includes('Remedial')?'red':r.status==='Graduated'?'green':r.status.includes('Partial')?'orange':'blue';
+      const pct=r.headcount>0?Math.round(r.inTraining/r.headcount*100):0;
+      return `<tr><td><span class="cohort-code">${r.cohort}</span></td><td><span class="badge ${r.type.toLowerCase()==='intern'?'blue':'purple'}">${r.type}</span></td><td><span class="badge ${sc}">${r.status}</span></td><td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${r.track}">${r.track}</td><td style="font-weight:700;">${r.headcount}</td><td><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div><div style="font-size:9px;color:var(--muted);margin-top:1px;">${r.inTraining}/${r.headcount}</div></td><td style="color:var(--red);">${r.exit||'—'}</td><td>${fd(r.startDate)}</td><td>${fd(r.qualifier)}</td><td>${fd(r.interim)}</td><td>${fd(r.final)}</td><td>${fd(r.release)}</td><td style="font-size:11px;">${r.trainerName||'—'}</td><td style="font-size:11px;">${r.coach||'—'}</td><td><span class="badge ${r.mode.toLowerCase().includes('virtual')?'blue':'green'}">${r.mode}</span></td></tr>`;
+    }).join('')}</tbody></table>`;
+}
+
+// ── MILESTONES PANEL ──
+function renderMilestones(){
+  const mtype=document.getElementById('mf-type')?.value||'';
+  const mstatus=document.getElementById('mf-status')?.value||'';
+  const all=[];
+  RAW_DATA.forEach(row=>{
+    [['qualifier','Q1 Qualifier'],['qualifier2','Q2 Qualifier'],['qualifier3','Q3 Qualifier'],['interim','Interim'],['final','Final'],['release','Release']].forEach(([k,lbl])=>{
+      if(!row[k]) return;
+      let dt;try{dt=new Date(row[k]);}catch(e){return;}if(isNaN(dt))return;
+      dt.setHours(0,0,0,0);
+      const diff=Math.floor((dt-TODAY)/86400000);
+      let st=diff<-7?'completed':diff<0?'overdue':diff<=7?'current':'upcoming';
+      if(mtype&&!k.includes(mtype)) return;
+      if(mstatus&&st!==mstatus) return;
+      all.push({...row,mType:lbl,mKey:k,mDate:row[k],dt,diff,status:st});
+    });
+  });
+  all.sort((a,b)=>a.dt-b.dt);
+  const fd=d=>{if(!d)return '—';try{return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});}catch(e){return d;}};
+  document.getElementById('milestone-detail-list').innerHTML=all.length?all.map(item=>`<div class="milestone-item ${item.status}" style="margin-bottom:7px;"><div class="milestone-dot ${item.status}"></div><div class="milestone-info"><div class="milestone-batch">${item.cohort} — ${item.mType}</div><div class="milestone-type">${item.track}</div></div><div style="text-align:right;"><div class="milestone-date ${item.status}" style="font-size:11px;font-weight:600;">${fd(item.mDate)}</div><div style="font-size:9px;color:var(--muted);">${item.diff<0?`${Math.abs(item.diff)}d ago`:item.diff===0?'TODAY':item.diff+'d left'}</div></div></div>`).join(''):'<div class="empty-state"><div class="emo">🎯</div><p>No milestones match the filter</p></div>';
+  // Calendar heatmap
+  const mm={};
+  all.forEach(item=>{if(!item.mDate)return;const d=new Date(item.mDate);if(isNaN(d))return;const key=d.toISOString().split('T')[0];if(!mm[key])mm[key]=0;mm[key]++;});
+  const months=['2026-03','2026-04','2026-05','2026-06','2026-07'];
+  let cal='<div style="display:flex;flex-direction:column;gap:12px;">';
+  months.forEach(m=>{
+    const [yr,mo]=m.split('-').map(Number);
+    const dim=new Date(yr,mo,0).getDate();
+    cal+=`<div><div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;">${new Date(yr,mo-1,1).toLocaleDateString('en',{month:'long',year:'numeric'})}</div><div style="display:flex;flex-wrap:wrap;gap:3px;">`;
+    for(let day=1;day<=dim;day++){
+      const key=`${yr}-${String(mo).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const isToday=key===TODAY_STR;
+      const cnt=mm[key]||0;
+      let bg='#d6ecf5';
+      if(isToday)bg='#1a6fa8';
+      else if(cnt>=3)bg='#b91c1c';
+      else if(cnt===2)bg='#f59e0b';
+      else if(cnt===1)bg='#0e86c7';
+      cal+=`<div style="width:18px;height:18px;border-radius:2px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:${isToday?700:400};" title="${cnt?cnt+' milestone(s)':isToday?'Today':'No events'}">${day}</div>`;
+    }
+    cal+=`</div></div>`;
+  });
+  cal+='</div>';
+  document.getElementById('milestone-calendar').innerHTML=cal;
+}
+
+// ── INIT ──
+window.addEventListener('DOMContentLoaded',()=>{populateVerticalFilter();refreshDashboard();});
+</script>
+</body>
+</html>
