@@ -1013,7 +1013,73 @@ function renderMilestones(){
 }
 
 // ── INIT ──
-window.addEventListener('DOMContentLoaded',()=>{populateVerticalFilter();refreshDashboard();});
+// ── SUPABASE CONFIG ──
+// Replace these two values after deploying (set in Vercel Environment Variables)
+// For local dev: create .env.local with SUPABASE_URL and SUPABASE_ANON_KEY
+const SUPABASE_URL     = window.__SUPABASE_URL__     || '';
+const SUPABASE_ANON_KEY= window.__SUPABASE_ANON_KEY__|| '';
+const API_BASE         = window.__API_BASE__          || '';  // e.g. https://your-app.vercel.app
+
+// ── DB SYNC HELPERS ──
+// Load batch data from Supabase on startup (if configured)
+async function loadBatchesFromDB(){
+  if(!API_BASE) return; // local mode — use preloaded data
+  try{
+    const res=await fetch(API_BASE+'/api/batches');
+    if(!res.ok) return;
+    const rows=await res.json();
+    if(rows&&rows.length){
+      RAW_DATA=rows.map(r=>({
+        type:r.type,cohort:r.cohort,status:r.status,vertical:r.vertical,
+        headcount:r.headcount,exit:r.exit_count,hold:r.hold_count,inTraining:r.in_training,
+        track:r.track,startDate:r.start_date,coach:r.coach,
+        qualifier:r.qualifier1,qualifier2:r.qualifier2,qualifier3:r.qualifier3,
+        interim:r.interim,final:r.final_date,release:r.release_date,
+        trainerName:r.trainer_name,mode:r.mode,
+        mentorName:r.mentor_name,bhName:r.bh_name,room:r.room
+      }));
+      FILTERED_DATA=[...RAW_DATA];
+      populateVerticalFilter();
+      refreshDashboard();
+      showToast('✅ Data loaded from database ('+RAW_DATA.length+' batches)');
+    }
+  }catch(e){console.warn('DB load failed, using preloaded data');}
+}
+
+// Save batch data to Supabase after Excel upload
+async function saveBatchesToDB(data){
+  if(!API_BASE) return;
+  try{
+    const res=await fetch(API_BASE+'/api/batches',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)
+    });
+    const j=await res.json();
+    if(j.saved) showToast('💾 Saved '+j.saved+' batches to database');
+  }catch(e){console.warn('DB save failed');}
+}
+
+// Save attendance to Supabase
+async function saveAttendanceToDB(empId, dates){
+  if(!API_BASE) return;
+  try{
+    const rows=Object.entries(dates).map(([att_date,status])=>({
+      emp_id:empId,
+      candidate_name:ATTENDANCE[empId]?.name||'',
+      cohort:ATTENDANCE[empId]?.cohort||'',
+      track:ATTENDANCE[empId]?.track||'',
+      att_date,status
+    }));
+    await fetch(API_BASE+'/api/attendance',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rows)
+    });
+  }catch(e){console.warn('Attendance DB save failed');}
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  populateVerticalFilter();
+  refreshDashboard();
+  loadBatchesFromDB();  // try loading from DB; falls back to preloaded if not configured
+});
 </script>
 </body>
 </html>
